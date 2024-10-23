@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Your Quests - Medieval Todos{% endblock %}
+
+{% block content %}
+<div class="todos-container">
+    <!-- List Creation -->
+    <div class="create-list">
+        <h2><i class="fas fa-scroll"></i> Create New Quest List</h2>
+        <form method="POST" action="{{ url_for('todos.create_list') }}" class="create-list-form">
+            <input type="text" name="title" placeholder="Enter list title..." required>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create
+            </button>
+        </form>
+    </div>
+
+    <!-- Todo Lists -->
+    <div class="lists-container">
+        {% for list in lists %}
+        <div class="todo-list" data-list-id="{{ list.id }}">
+            <div class="list-header">
+                <h3><i class="fas fa-bookmark"></i> {{ list.title }}</h3>
+                <div class="list-actions">
+                    <form method="POST" action="{{ url_for('todos.delete_list', list_id=list.id) }}"
+                        class="delete-list-form" onsubmit="return confirm('Are you sure?')">
+                        <button type="submit" class="btn btn-danger btn-small">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Create Item Form -->
+            <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-item-form">
+                <input type="hidden" name="list_id" value="{{ list.id }}">
+                <input type="text" name="title" placeholder="Add new quest..." required>
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </form>
+
+            <!-- Todo Items -->
+            <div class="items-container">
+                {% macro render_todo_item(item, level=0) %}
+                <div class="todo-item level-{{ level }}" data-item-id="{{ item.id }}">
+                    <div class="item-content">
+                        <!-- Expand/Collapse Button (if has children) -->
+                        {% if item.children.count() > 0 %}
+                        <button class="btn-expand {{ 'expanded' if item.is_expanded else '' }}"
+                            onclick="toggleExpand('{{ item.id }}')">
+                            <i class="fas {{ 'fa-chevron-down' if item.is_expanded else 'fa-chevron-right' }}"></i>
+                        </button>
+                        {% endif %}
+
+                        <!-- Completion Toggle -->
+                        <form method="POST" action="{{ url_for('todos.toggle_item', item_id=item.id) }}"
+                            class="toggle-form">
+                            <button type="submit" class="btn-toggle {{ 'completed' if item.completed else '' }}">
+                                <i class="fas {{ 'fa-check-circle' if item.completed else 'fa-circle' }}"></i>
+                            </button>
+                        </form>
+
+                        <!-- Item Title -->
+                        <span class="item-title {{ 'completed' if item.completed else '' }}">
+                            {{ item.title }}
+                        </span>
+
+                        <!-- Item Actions -->
+                        <div class="item-actions">
+                            {% if item.can_have_children() %}
+                            <button class="btn btn-small" onclick="showSubitemForm('{{ item.id }}')">
+                                <i class="fas fa-tasks"></i>
+                            </button>
+                            {% endif %}
+
+                            {% if level == 0 %}
+                            <button class="btn btn-small" onclick="showMoveForm('{{ item.id }}')">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Sub-item Creation Form (hidden by default) -->
+                    <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-subitem-form"
+                        id="subitem-form-{{ item.id }}" style="display: none;">
+                        <input type="hidden" name="list_id" value="{{ list.id }}">
+                        <input type="hidden" name="parent_id" value="{{ item.id }}">
+                        <input type="text" name="title" placeholder="Add sub-quest..." required>
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </form>
+
+                    <!-- Child Items -->
+                    {% if item.children.count() > 0 and item.is_expanded %}
+                    <div class="children-container">
+                        {% for child in item.children %}
+                        {{ render_todo_item(child, level + 1) }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endmacro %}
+
+                {% for item in list.items %}
+                {{ render_todo_item(item) }}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Move Item Modal -->
+<div id="moveModal" class="modal">
+    <div class="modal-content">
+        <h3>Move Quest to Another List</h3>
+        <form method="POST" id="moveItemForm">
+            <select name="list_id" required>
+                {% for list in lists %}
+                <option value="{{ list.id }}">{{ list.title }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Move</button>
+            <button type="button" class="btn btn-secondary" onclick="closeMoveModal()">Cancel</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleExpand(itemId) {
+        fetch(`/item/${itemId}/expand`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(() => window.location.reload());
+    }
+
+    function showSubitemForm(itemId) {
+        document.getElementById(`subitem-form-${itemId}`).style.display = 'flex';
+    }
+
+    function showMoveForm(itemId) {
+        const modal = document.getElementById('moveModal');
+        const form = document.getElementById('moveItemForm');
+        form.action = `/item/${itemId}/move`;
+        modal.style.display = 'block';
+    }
+
+    function closeMoveModal() {
+        document.getElementById('moveModal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('moveModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}
