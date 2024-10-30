@@ -25,14 +25,14 @@ A hierarchical todo list application with a medieval theme. Users can create mul
 
 1. Clone the repository:
 
-```bash
+```sh
 git clone <repository-url>
 cd medieval-todos
 ```
 
 2. Create and activate virtual environment:
 
-```bash
+```sh
 # On macOS/Linux:
 python3 -m venv venv
 source venv/bin/activate
@@ -44,13 +44,13 @@ venv\Scripts\activate.bat
 
 3. Install dependencies:
 
-```bash
+```sh
 pip install -r requirements.txt
 ```
 
 4. Run the application:
 
-```bash
+```sh
 python run.py
 ```
 
@@ -77,7 +77,7 @@ medieval-todos/
 
 Run tests using:
 
-```bash
+```sh
 python -m pytest
 ```
 

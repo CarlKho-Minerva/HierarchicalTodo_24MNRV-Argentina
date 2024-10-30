@@ -47,15 +47,15 @@ class User(UserMixin, db.Model):
 
 
 @login_manager.user_loader
-def load_user(id: str) -> Optional[User]:
+def load_user(user_id: str) -> Optional[User]:
     """
     Load a user from the database using their ID.
 
     Args:
-        id: User ID as a string
+        user_id: User ID as a string
 
     Returns:
         Optional[User]: User object if found, None otherwise
     """
-    return User.query.get(int(id))
+    return User.query.get(int(user_id))
 
