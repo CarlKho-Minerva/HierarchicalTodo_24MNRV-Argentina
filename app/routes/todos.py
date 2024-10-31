@@ -159,9 +159,6 @@ def toggle_expand(item_id: int) -> Union[Dict[str, Any], redirect]:
         redirect for form submissions
     """
     item = TodoItem.query.get_or_404(item_id)
-    if item.todo_list.user_id != current_user.id:
-        flash("Unauthorized action.", "error")
-        return redirect(url_for("todos.index"))
 
     item.toggle_expanded()
     db.session.commit()
