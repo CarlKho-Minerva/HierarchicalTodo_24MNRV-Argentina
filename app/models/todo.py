@@ -28,6 +28,15 @@ class TodoList(db.Model):
         primaryjoin="and_(TodoList.id==TodoItem.list_id, " "TodoItem.parent_id==None)",
     )
 
+    def update_title(self, new_title: str) -> None:
+        """
+        Update the title of the todo list.
+
+        Args:
+            new_title: New title for the todo list
+        """
+        self.title = new_title
+
 
 class TodoItem(db.Model):
     """

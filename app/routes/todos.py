@@ -76,6 +76,39 @@ def delete_list(list_id: int) -> Union[Dict[str, Any], redirect]:
     return redirect(url_for("todos.index"))
 
 
+@bp.route("/list/<int:list_id>/edit", methods=["POST"])
+@login_required
+def edit_list(list_id: int) -> Union[Dict[str, Any], redirect]:
+    """
+    Edit the name of a todo list.
+
+    Args:
+        list_id: ID of the list to edit
+
+    Returns:
+        Union[Dict[str, Any], redirect]: JSON response for API calls,
+        redirect for form submissions
+    """
+    new_title = request.form.get("title")
+    if not new_title:
+        flash("Title is required.", "error")
+        return redirect(url_for("todos.index"))
+
+    todo_list = TodoList.query.get_or_404(list_id)
+    if todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
+    todo_list.update_title(new_title)
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True})
+
+    flash("List name updated successfully!", "success")
+    return redirect(url_for("todos.index"))
+
+
 @bp.route("/item/create", methods=["POST"])
 @login_required
 def create_item() -> Union[Dict[str, Any], redirect]:

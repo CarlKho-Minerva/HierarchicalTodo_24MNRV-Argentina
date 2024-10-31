@@ -22,6 +22,9 @@
             <div class="list-header">
                 <h3><i class="fas fa-bookmark"></i> {{ list.title }}</h3>
                 <div class="list-actions">
+                    <button class="btn btn-small" onclick="showEditForm('{{ list.id }}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
                     <form method="POST" action="{{ url_for('todos.delete_list', list_id=list.id) }}"
                         class="delete-list-form" onsubmit="return confirm('Are you sure?')">
                         <button type="submit" class="btn btn-danger btn-small">
@@ -30,6 +33,15 @@
                     </form>
                 </div>
             </div>
+            <!-- Edit List Name Form (hidden by default) -->
+            <form method="POST" action="{{ url_for('todos.edit_list', list_id=list.id) }}" class="edit-list-form"
+                id="edit-form-{{ list.id }}" style="display: none;">
+                <input type="text" name="title" value="{{ list.title }}" required>
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeEditForm('{{ list.id }}')">Cancel</button>
+            </form>
 
             <!-- Create Item Form -->
             <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-item-form">
@@ -154,6 +166,14 @@
 
     function closeMoveModal() {
         document.getElementById('moveModal').style.display = 'none';
+    }
+
+    function showEditForm(listId) {
+        document.getElementById(`edit-form-${listId}`).style.display = 'flex';
+    }
+
+    function closeEditForm(listId) {
+        document.getElementById(`edit-form-${listId}`).style.display = 'none';
     }
 
     // Close modal when clicking outside
