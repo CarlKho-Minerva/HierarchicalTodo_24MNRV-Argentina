@@ -113,3 +113,12 @@ class TodoItem(db.Model):
         if self.parent_id is not None:
             raise ValueError("Can only move top-level items between lists")
         self.list_id = new_list_id
+
+    def update_title(self, new_title: str) -> None:
+        """
+        Update the title of the todo item.
+
+        Args:
+            new_title: New title for the todo item
+        """
+        self.title = new_title

@@ -91,7 +91,25 @@
                                 <i class="fas fa-exchange-alt"></i>
                             </button>
                             {% endif %}
+                            <button class="btn btn-small" onclick="showEditItemForm('{{ item.id }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form method="POST" action="{{ url_for('todos.delete_item', item_id=item.id) }}"
+                                class="delete-item-form" onsubmit="return confirm('Are you sure?')">
+                                <button type="submit" class="btn btn-danger btn-small">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
+                        <!-- Edit Item Name Form (hidden by default) -->
+                        <form method="POST" action="{{ url_for('todos.edit_item', item_id=item.id) }}" class="edit-item-form"
+                            id="edit-item-form-{{ item.id }}" style="display: none;">
+                            <input type="text" name="title" value="{{ item.title }}" required>
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-save"></i>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="closeEditItemForm('{{ item.id }}')">Cancel</button>
+                        </form>
                     </div>
 
                     <!-- Sub-item Creation Form (hidden by default) -->
@@ -174,6 +192,14 @@
 
     function closeEditForm(listId) {
         document.getElementById(`edit-form-${listId}`).style.display = 'none';
+    }
+
+    function showEditItemForm(itemId) {
+        document.getElementById(`edit-item-form-${itemId}`).style.display = 'flex';
+    }
+
+    function closeEditItemForm(itemId) {
+        document.getElementById(`edit-item-form-${itemId}`).style.display = 'none';
     }
 
     // Close modal when clicking outside

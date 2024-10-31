@@ -114,6 +114,58 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
+
+  const editItemForms = document.querySelectorAll(".edit-item-form");
+  editItemForms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.reload();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  });
+
+  const deleteItemForms = document.querySelectorAll(".delete-item-form");
+  deleteItemForms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      if (!confirm("Are you sure you want to delete this item?")) {
+        return;
+      }
+
+      fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.reload();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  });
 });
 
 // Todo item interactions
@@ -191,4 +243,12 @@ function showEditForm(listId) {
 
 function closeEditForm(listId) {
   document.getElementById(`edit-form-${listId}`).style.display = 'none';
+}
+
+function showEditItemForm(itemId) {
+  document.getElementById(`edit-item-form-${itemId}`).style.display = 'flex';
+}
+
+function closeEditItemForm(itemId) {
+  document.getElementById(`edit-item-form-${itemId}`).style.display = 'none';
 }

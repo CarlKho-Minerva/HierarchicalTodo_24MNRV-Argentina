@@ -236,3 +236,58 @@ def move_item(item_id: int) -> Union[Dict[str, Any], redirect]:
 
     flash("Item moved successfully!", "success")
     return redirect(url_for("todos.index"))
+
+
+@bp.route("/item/<int:item_id>/edit", methods=["POST"])
+@login_required
+def edit_item(item_id: int) -> Union[Dict[str, Any], redirect]:
+    """
+    Edit the name of a todo item.
+
+    Args:
+        item_id: ID of the item to edit
+
+    Returns:
+        Union[Dict[str, Any], redirect]: JSON response for API calls,
+        redirect for form submissions
+    """
+    new_title = request.form.get("title")
+    if not new_title:
+        flash("Title is required.", "error")
+        return redirect(url_for("todos.index"))
+
+    item = TodoItem.query.get_or_404(item_id)
+
+    item.update_title(new_title)
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True})
+
+    flash("Item name updated successfully!", "success")
+    return redirect(url_for("todos.index"))
+
+
+@bp.route("/item/<int:item_id>/delete", methods=["POST"])
+@login_required
+def delete_item(item_id: int) -> Union[Dict[str, Any], redirect]:
+    """
+    Delete a todo item.
+
+    Args:
+        item_id: ID of the item to delete
+
+    Returns:
+        Union[Dict[str, Any], redirect]: JSON response for API calls,
+        redirect for form submissions
+    """
+    item = TodoItem.query.get_or_404(item_id)
+
+    db.session.delete(item)
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True})
+
+    flash("Item deleted successfully!", "success")
+    return redirect(url_for("todos.index"))
