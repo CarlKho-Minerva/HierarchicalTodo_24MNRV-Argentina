@@ -62,6 +62,58 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
+
+  const editForms = document.querySelectorAll(".edit-list-form");
+  editForms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.reload();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  });
+
+  const deleteForms = document.querySelectorAll(".delete-list-form");
+  deleteForms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      if (!confirm("Are you sure you want to delete this list?")) {
+        return;
+      }
+
+      fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.reload();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  });
 });
 
 // Todo item interactions
@@ -132,3 +184,11 @@ window.onclick = function (event) {
     modal.style.display = "none";
   }
 };
+
+function showEditForm(listId) {
+  document.getElementById(`edit-form-${listId}`).style.display = 'flex';
+}
+
+function closeEditForm(listId) {
+  document.getElementById(`edit-form-${listId}`).style.display = 'none';
+}
