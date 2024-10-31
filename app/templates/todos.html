@@ -7,7 +7,7 @@
     <!-- List Creation -->
     <div class="create-list">
         <h2><i class="fas fa-scroll"></i> Create New Quest List</h2>
-        <form method="POST" action="{{ url_for('todos.create_list') }}" class="create-list-form">
+        <form method="POST" action="{{ url_for('todos.create_list') }}" class="create-list-form" data-ajax="true">
             <input type="text" name="title" placeholder="Enter list title..." required>
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Create
@@ -26,7 +26,7 @@
                         <i class="fas fa-edit"></i>
                     </button>
                     <form method="POST" action="{{ url_for('todos.delete_list', list_id=list.id) }}"
-                        class="delete-list-form" onsubmit="return confirm('Are you sure?')">
+                        class="delete-list-form" data-ajax="true" onsubmit="return confirm('Are you sure?')">
                         <button type="submit" class="btn btn-danger btn-small">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -35,7 +35,7 @@
             </div>
             <!-- Edit List Name Form (hidden by default) -->
             <form method="POST" action="{{ url_for('todos.edit_list', list_id=list.id) }}" class="edit-list-form"
-                id="edit-form-{{ list.id }}" style="display: none;">
+                id="edit-form-{{ list.id }}" style="display: none;" data-ajax="true">
                 <input type="text" name="title" value="{{ list.title }}" required>
                 <button type="submit" class="btn btn-secondary">
                     <i class="fas fa-save"></i>
@@ -44,7 +44,7 @@
             </form>
 
             <!-- Create Item Form -->
-            <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-item-form">
+            <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-item-form" data-ajax="true">
                 <input type="hidden" name="list_id" value="{{ list.id }}">
                 <input type="text" name="title" placeholder="Add new quest..." required>
                 <button type="submit" class="btn btn-secondary">
@@ -67,7 +67,7 @@
 
                         <!-- Completion Toggle -->
                         <form method="POST" action="{{ url_for('todos.toggle_item', item_id=item.id) }}"
-                            class="toggle-form">
+                            class="toggle-form" data-ajax="true">
                             <button type="submit" class="btn-toggle {{ 'completed' if item.completed else '' }}">
                                 <i class="fas {{ 'fa-check-circle' if item.completed else 'fa-circle' }}"></i>
                             </button>
@@ -95,7 +95,7 @@
                                 <i class="fas fa-edit"></i>
                             </button>
                             <form method="POST" action="{{ url_for('todos.delete_item', item_id=item.id) }}"
-                                class="delete-item-form" onsubmit="return confirm('Are you sure?')">
+                                class="delete-item-form" data-ajax="true" onsubmit="return confirm('Are you sure?')">
                                 <button type="submit" class="btn btn-danger btn-small">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -103,7 +103,7 @@
                         </div>
                         <!-- Edit Item Name Form (hidden by default) -->
                         <form method="POST" action="{{ url_for('todos.edit_item', item_id=item.id) }}" class="edit-item-form"
-                            id="edit-item-form-{{ item.id }}" style="display: none;">
+                            id="edit-item-form-{{ item.id }}" style="display: none;" data-ajax="true">
                             <input type="text" name="title" value="{{ item.title }}" required>
                             <button type="submit" class="btn btn-secondary">
                                 <i class="fas fa-save"></i>
@@ -114,7 +114,7 @@
 
                     <!-- Sub-item Creation Form (hidden by default) -->
                     <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-subitem-form"
-                        id="subitem-form-{{ item.id }}" style="display: none;">
+                        id="subitem-form-{{ item.id }}" style="display: none;" data-ajax="true">
                         <input type="hidden" name="list_id" value="{{ list.id }}">
                         <input type="hidden" name="parent_id" value="{{ item.id }}">
                         <input type="text" name="title" placeholder="Add sub-quest..." required>
@@ -147,7 +147,7 @@
 <div id="moveModal" class="modal">
     <div class="modal-content">
         <h3>Move Quest to Another List</h3>
-        <form method="POST" id="moveItemForm">
+        <form method="POST" id="moveItemForm" data-ajax="true">
             <select name="list_id" required>
                 {% for list in lists %}
                 <option value="{{ list.id }}">{{ list.title }}</option>

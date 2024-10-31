@@ -220,6 +220,7 @@ def move_item(item_id: int) -> Union[Dict[str, Any], redirect]:
     item = TodoItem.query.get_or_404(item_id)
     new_list = TodoList.query.get_or_404(new_list_id)
 
+    # Validate user ownership
     if item.todo_list.user_id != current_user.id or new_list.user_id != current_user.id:
         flash("Unauthorized action.", "error")
         return redirect(url_for("todos.index"))
