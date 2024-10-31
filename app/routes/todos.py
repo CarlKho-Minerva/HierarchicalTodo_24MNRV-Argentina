@@ -62,9 +62,6 @@ def delete_list(list_id: int) -> Union[Dict[str, Any], redirect]:
         redirect for form submissions
     """
     todo_list = TodoList.query.get_or_404(list_id)
-    if todo_list.user_id != current_user.id:
-        flash("Unauthorized action.", "error")
-        return redirect(url_for("todos.index"))
 
     db.session.delete(todo_list)
     db.session.commit()

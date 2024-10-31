@@ -86,6 +86,34 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
+
+  const deleteForms = document.querySelectorAll(".delete-list-form");
+  deleteForms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      if (!confirm("Are you sure you want to delete this list?")) {
+        return;
+      }
+
+      fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.reload();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  });
 });
 
 // Todo item interactions
