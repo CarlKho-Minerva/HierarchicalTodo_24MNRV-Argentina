@@ -85,12 +85,9 @@
                                 <i class="fas fa-tasks"></i>
                             </button>
                             {% endif %}
-
-                            {% if level == 0 %}
                             <button class="btn btn-small" onclick="showMoveForm('{{ item.id }}')">
                                 <i class="fas fa-exchange-alt"></i>
                             </button>
-                            {% endif %}
                             <button class="btn btn-small" onclick="showEditItemForm('{{ item.id }}')">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -102,13 +99,15 @@
                             </form>
                         </div>
                         <!-- Edit Item Name Form (hidden by default) -->
-                        <form method="POST" action="{{ url_for('todos.edit_item', item_id=item.id) }}" class="edit-item-form"
-                            id="edit-item-form-{{ item.id }}" style="display: none;" data-ajax="true">
+                        <form method="POST" action="{{ url_for('todos.edit_item', item_id=item.id) }}"
+                            class="edit-item-form" id="edit-item-form-{{ item.id }}" style="display: none;"
+                            data-ajax="true">
                             <input type="text" name="title" value="{{ item.title }}" required>
                             <button type="submit" class="btn btn-secondary">
                                 <i class="fas fa-save"></i>
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="closeEditItemForm('{{ item.id }}')">Cancel</button>
+                            <button type="button" class="btn btn-secondary"
+                                onclick="closeEditItemForm('{{ item.id }}')">Cancel</button>
                         </form>
                     </div>
 
@@ -158,6 +157,26 @@
         </form>
     </div>
 </div>
+
+<!-- Add a form to move items between lists -->
+<div id="move-item-modal" class="modal">
+    <div class="modal-content">
+        <h4>Move Item</h4>
+        <form id="move-item-form">
+            <input type="hidden" name="item_id" id="move-item-id">
+            <div class="input-field">
+                <select name="list_id" id="move-item-list-id">
+                    {% for list in lists %}
+                    <option value="{{ list.id }}">{{ list.title }}</option>
+                    {% endfor %}
+                </select>
+                <label for="move-item-list-id">Select List</label>
+            </div>
+            <button type="submit" class="btn">Move</button>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -203,11 +222,43 @@
     }
 
     // Close modal when clicking outside
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         const modal = document.getElementById('moveModal');
         if (event.target == modal) {
             modal.style.display = 'none';
         }
+    }
+
+    // Handle move item form submission
+    document.getElementById('move-item-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const itemId = document.getElementById('move-item-id').value;
+        const listId = document.getElementById('move-item-list-id').value;
+
+        fetch(`/item/${itemId}/move`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `list_id=${listId}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to move item.');
+                }
+            });
+    });
+
+    // Function to open move item modal
+    function openMoveItemModal(itemId) {
+        document.getElementById('move-item-id').value = itemId;
+        const modal = document.getElementById('move-item-modal');
+        const instance = M.Modal.getInstance(modal);
+        instance.open();
     }
 </script>
 {% endblock %}
