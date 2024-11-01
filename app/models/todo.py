@@ -77,8 +77,12 @@ class TodoItem(db.Model):
     is_expanded: bool = Column(db.Boolean, default=True)
 
     # Self-referential relationship for hierarchical structure
+    # In app/models/todo.py
     children = db.relationship(
-        "TodoItem", backref=db.backref("parent", remote_side=[id]), lazy="dynamic"
+        "TodoItem",
+        backref=db.backref("parent", remote_side=[id]),
+        lazy="dynamic",
+        cascade="all, delete-orphan",  # This ensures cascading deletes
     )
 
     def toggle_completed(self) -> None:
