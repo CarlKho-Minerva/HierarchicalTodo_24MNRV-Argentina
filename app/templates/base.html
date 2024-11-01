@@ -41,21 +41,59 @@
         </nav>
 
         <div class="container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">
-                {{ message }}
-                <button class="alert-close">&times;</button>
+            <div class="toast-container" id="toastContainer">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="toast toast-{{ category }}" role="alert">
+                                <i class="toast-icon fas
+                                    {%- if category == 'success' -%} fa-check-circle
+                                    {%- elif category == 'error' -%} fa-exclamation-circle
+                                    {%- elif category == 'warning' -%} fa-exclamation-triangle
+                                    {%- else -%} fa-info-circle
+                                    {%- endif -%}">
+                                </i>
+                                <div class="toast-message">{{ message }}</div>
+                                <button type="button" class="toast-close" onclick="closeToast(this)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <div class="toast-progress">
+                                    <div class="toast-progress-bar"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
             </div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
-
             {% block content %}{% endblock %}
         </div>
-    </div>
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Show all toasts with a slight delay between each
+                const toasts = document.querySelectorAll('.toast');
+                toasts.forEach((toast, index) => {
+                    setTimeout(() => {
+                        toast.classList.add('show');
+                        // Auto-remove toast after animation
+                        setTimeout(() => {
+                            toast.classList.remove('show');
+                            setTimeout(() => {
+                                toast.remove();
+                            }, 300);
+                        }, 3000);
+                    }, index * 150);
+                });
+            });
+
+            function closeToast(button) {
+                const toast = button.closest('.toast');
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }
+        </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
