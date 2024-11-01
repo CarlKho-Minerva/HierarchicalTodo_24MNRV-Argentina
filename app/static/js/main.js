@@ -263,27 +263,40 @@ function reloadItemsContainer(listId) {
 
 // Todo item interactions
 function toggleExpand(itemId) {
-  fetch(`/item/${itemId}/expand`, {
-    method: 'POST',
-    headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-      const item = document.querySelector(`[data-item-id="${itemId}"]`);
-      const button = item.querySelector('.btn-expand');
-      const icon = button.querySelector('i');
-      const childrenContainer = item.querySelector('.children-container');
+    const item = document.querySelector(`[data-item-id="${itemId}"]`);
+    const childrenContainer = item.querySelector('.children-container');
+    const expandButton = item.querySelector('.btn-expand i');
 
-      if (data.expanded) {
-          icon.classList.replace('fa-chevron-right', 'fa-chevron-down');
-          childrenContainer.style.display = 'block';
-      } else {
-          icon.classList.replace('fa-chevron-down', 'fa-chevron-right');
-          childrenContainer.style.display = 'none';
-      }
-  });
+    // Toggle expanded state with sliding animation
+    if (childrenContainer) {
+        const isExpanded = childrenContainer.classList.contains('expanded');
+
+        if (isExpanded) {
+            childrenContainer.style.maxHeight = '0';
+            childrenContainer.classList.remove('expanded');
+            expandButton.classList.replace('fa-chevron-down', 'fa-chevron-right');
+        } else {
+            childrenContainer.classList.add('expanded');
+            childrenContainer.style.maxHeight = childrenContainer.scrollHeight + 'px';
+            expandButton.classList.replace('fa-chevron-right', 'fa-chevron-down');
+        }
+
+        // Smooth scroll if item is not fully visible
+        setTimeout(() => {
+            const rect = item.getBoundingClientRect();
+            if (rect.bottom > window.innerHeight) {
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }, 300);
+    }
+
+    // Update server state
+    fetch(`/item/${itemId}/expand`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    });
 }
 
 function toggleComplete(itemId) {
