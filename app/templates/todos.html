@@ -77,7 +77,7 @@
                         <form method="POST" action="{{ url_for('todos.toggle_item', item_id=item.id) }}"
                             class="toggle-form" data-ajax="true">
                             <button type="submit" class="btn-toggle {{ 'completed' if item.completed else '' }}">
-                                <i class="fas {{ 'fa-check-circle' if item.completed else 'fa-circle' }}"></i>
+                                <i class="fas {{ 'fa-check-circle' if item.completed else 'fa-circle-dot' }}"></i>
                             </button>
                         </form>
 
