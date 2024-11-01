@@ -1,42 +1,106 @@
-/* Base styles */
 :root {
-    --primary-color: #8b4513;
-    --secondary-color: #654321;
-    --background-color: #f5e6d3;
-    --text-color: #2c1810;
-    --border-color: #d4a76a;
-    --success-color: #2d5a27;
-    --danger-color: #8b0000;
-    --shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --primary-color: #4a2c2a;
+    --secondary-color: #9c7c38;
+    --accent-color: #c0a080;
+    --text-color: #e0d0b0;
+    --background-color: #1a0a0a;
 }
 
-body {
-    font-family: 'Crimson Text', serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
+body,
+html {
     margin: 0;
     padding: 0;
-    line-height: 1.6;
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    height: 100%;
+    overflow: hidden;
+
 }
 
-/* Navigation */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(26, 10, 10, 0.7), rgba(26, 10, 10, 0.7));
+    background-size: cover;
+    overflow: auto;
+}
+
+.flame {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    width: 100vw;
+    height: 100vh;
+    background-image: radial-gradient(ellipse at center,
+            rgba(255, 160, 40, 0.2) 0%,
+            rgba(255, 160, 40, 0) 70%);
+    transform: translateX(-50%);
+    animation: flicker 1.5s infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes flicker {
+    0% {
+        opacity: 0.4;
+        transform: translateX(-50%) scale(1);
+    }
+
+    20% {
+        opacity: 0.6;
+        transform: translateX(-50%) scale(1.02);
+    }
+
+    40% {
+        opacity: 0.8;
+        transform: translateX(-50%) scale(1.04);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.06);
+    }
+
+    80% {
+        opacity: 0.8;
+        transform: translateX(-50%) scale(1.04);
+    }
+
+    100% {
+        opacity: 0.4;
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Navigation styles */
 .navbar {
     background-color: var(--primary-color);
+    border-bottom: 2px solid var(--secondary-color);
     padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 2;
 }
 
 .navbar-brand {
+    font-family: 'Cinzel', serif;
     font-size: 1.5rem;
-    font-weight: bold;
 }
 
 .navbar-logo {
-    color: #fff;
+    color: var(--accent-color);
     text-decoration: none;
+    text-shadow: 2px 2px 4px #000;
 }
 
 .navbar-menu {
@@ -46,120 +110,167 @@ body {
 
 .navbar-item,
 .navbar-user {
-    color: #fff;
+    color: var(--text-color);
     text-decoration: none;
     padding: 0.5rem 1rem;
-    border-radius: 4px;
+    border: 1px solid var(--secondary-color);
+    transition: all 0.3s ease;
 }
 
 .navbar-item:hover {
     background-color: var(--secondary-color);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(192, 160, 128, 0.3);
 }
 
-/* Container and Cards */
-.container {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-.auth-container {
-    max-width: 400px;
-    margin: 2rem auto;
-}
-
-.auth-card {
-    background-color: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-}
-
-/* Forms */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-.form-help {
-    font-size: 0.875rem;
-    color: #666;
-    margin-top: 0.25rem;
-}
-
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: #fff;
-}
-
-.btn-secondary {
-    background-color: var(--secondary-color);
-    color: #fff;
-}
-
-.btn-danger {
-    background-color: var(--danger-color);
-    color: #fff;
-}
-
-.btn-small {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-}
-
-/* Todo Lists */
+/* Todo list styles */
 .todos-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.create-list {
-    background-color: #fff;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-}
-
-.create-list-form {
-    display: flex;
-    gap: 1rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 2px solid var(--secondary-color);
+    padding: 20px;
+    margin-top: 20px;
+    clip-path: polygon(0 10px, 10px 0,
+            calc(100% - 10px) 0, 100% 10px,
+            100% calc(100% - 10px), calc(100% - 10px) 100%,
+            10px 100%, 0 calc(100% - 10px));
 }
 
 .todo-list {
-    background-color: #fff;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    margin-bottom: 1.5rem;
+    background-color: var(--primary-color);
+    border: 1px solid var(--secondary-color);
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
 }
 
+.todo-list:hover {
+    transform: scale(1.01);
+    box-shadow: 0 0 15px rgba(192, 160, 128, 0.3);
+}
+
+/* Form styles */
+.auth-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 2px solid var(--secondary-color);
+    padding: 20px;
+    clip-path: polygon(0 10px, 10px 0,
+            calc(100% - 10px) 0, 100% 10px,
+            100% calc(100% - 10px), calc(100% - 10px) 100%,
+            10px 100%, 0 calc(100% - 10px));
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: var(--primary-color);
+    border: 1px solid var(--secondary-color);
+    color: var(--text-color);
+    font-family: 'Open Sans', sans-serif;
+}
+
+.btn {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background-color: var(--accent-color);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(192, 160, 128, 0.3);
+}
+
+/* Action buttons layout */
+.item-actions,
+.list-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    border: 1px solid var(--accent-color);
+    padding: 0.5rem;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+.btn:hover {
+    background-color: var(--accent-color);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(192, 160, 128, 0.3);
+}
+
+.btn-small {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0.25rem;
+}
+
+.btn-danger {
+    background-color: #8b0000;
+}
+
+.btn-danger:hover {
+    background-color: #a00000;
+}
+
+.item-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border: 1px solid var(--secondary-color);
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+/* Form layout improvements */
+.create-item-form,
+.create-list-form {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.create-item-form input,
+.create-list-form input {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Better visibility for completed items */
+.item-title.completed {
+    opacity: 0.6;
+    text-decoration: line-through;
+    color: var(--accent-color);
+}
+
+/* List header layout */
 .list-header {
     display: flex;
     justify-content: space-between;
@@ -167,110 +278,43 @@ body {
     margin-bottom: 1rem;
 }
 
-.items-container {
-    margin-top: 1rem;
-}
-
-.todo-item {
-    margin: 0.5rem 0;
-}
-
-.level-0 {
-    margin-left: 0;
-}
-
-.level-1 {
-    margin-left: 2rem;
-}
-
-.level-2 {
-    margin-left: 4rem;
-}
-
-.item-content {
+.list-actions-container {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
+    gap: 1rem;
 }
 
-.btn-toggle {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
+.create-item-form {
+    margin: 0;
 }
 
-.btn-expand {
-    background: none;
-    border: none;
-    cursor: pointer;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.item-title {
-    flex-grow: 1;
-}
-
-.item-title.completed {
-    text-decoration: line-through;
-    color: #666;
-}
-
-.item-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-/* Modal */
+/* Modal styles */
 .modal {
     display: none;
     position: fixed;
-    top: 0;
+    z-index: 1000;
     left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .modal-content {
-    background-color: #fff;
+    background-color: var(--primary-color);
+    border: 2px solid var(--secondary-color);
     margin: 15% auto;
-    padding: 2rem;
-    border-radius: 8px;
+    padding: 20px;
+    width: 80%;
     max-width: 500px;
+    position: relative;
+    clip-path: polygon(0 10px, 10px 0,
+            calc(100% - 10px) 0, 100% 10px,
+            100% calc(100% - 10px), calc(100% - 10px) 100%,
+            10px 100%, 0 calc(100% - 10px));
 }
 
-/* Alerts */
-.alert {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.alert-success {
-    background-color: var(--success-color);
-    color: #fff;
-}
-
-.alert-error {
-    background-color: var(--danger-color);
-    color: #fff;
-}
-
-.alert-close {
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    font-size: 1.25rem;
+/* Remove the duplicate move-item-modal style since it's handled by the .modal class */
+#move-item-modal {
+    display: none;
 }
