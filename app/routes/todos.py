@@ -241,12 +241,16 @@ def edit_item(item_id: int) -> Union[Dict[str, Any], redirect]:
         redirect for form submissions
     """
     new_title = request.form.get("title")
-    if not new_title:
-        flash("Title is required.", "error")
+    list_id = request.form.get("list_id", type=int)
+
+    if not new_title or not list_id:
+        flash("Title and list ID are required.", "error")
         return redirect(url_for("todos.index"))
 
     item = TodoItem.query.get_or_404(item_id)
-    if item.todo_list.user_id != current_user.id:
+    todo_list = TodoList.query.get_or_404(list_id)
+
+    if todo_list.user_id != current_user.id:
         flash("Unauthorized action.", "error")
         return redirect(url_for("todos.index"))
 

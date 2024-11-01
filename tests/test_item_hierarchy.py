@@ -156,11 +156,14 @@ def test_edit_items_at_all_levels(authenticated_client, test_list):
     for item, new_title in items_to_edit:
         response = authenticated_client.post(
             f"/item/{item.id}/edit",
-            data={"title": new_title, "list_id": test_list.id}
+            data={
+                "title": new_title,
+                "list_id": test_list.id  # Add list_id to the request
+            }
         )
         assert response.status_code in [200, 302]
-        updated_item = TodoItem.query.get(item.id)
-        assert updated_item.title == new_title
+        db.session.refresh(item)  # Refresh the item from the database
+        assert item.title == new_title
 
 
 def test_delete_items_at_all_levels(authenticated_client, test_list):
