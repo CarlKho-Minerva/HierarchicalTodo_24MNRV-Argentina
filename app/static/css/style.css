@@ -87,40 +87,105 @@ html {
 .navbar {
     background-color: var(--primary-color);
     border-bottom: 2px solid var(--secondary-color);
-    padding: 1rem;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     position: relative;
     z-index: 2;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+.navbar::before {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg,
+        transparent,
+        var(--accent-color),
+        transparent
+    );
 }
 
 .navbar-brand {
     font-family: 'Cinzel', serif;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    position: relative;
 }
 
 .navbar-logo {
     color: var(--accent-color);
     text-decoration: none;
     text-shadow: 2px 2px 4px #000;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-logo i {
+    font-size: 1.5rem;
+    color: var(--secondary-color);
 }
 
 .navbar-menu {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
+    align-items: center;
 }
 
 .navbar-item,
 .navbar-user {
     color: var(--text-color);
     text-decoration: none;
-    padding: 0.5rem 1rem;
+    padding: 0.7rem 1.2rem;
     border: 1px solid var(--secondary-color);
+    border-radius: 4px;
     transition: all 0.3s ease;
+    font-family: 'Cinzel', serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-user {
+    background-color: rgba(156, 124, 56, 0.2);
+    border-color: var(--accent-color);
+}
+
+.navbar-item::before,
+.navbar-user::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(192, 160, 128, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.navbar-item:hover::before,
+.navbar-user:hover::before {
+    left: 100%;
 }
 
 .navbar-item:hover {
     background-color: var(--secondary-color);
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(192, 160, 128, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(192, 160, 128, 0.3);
+}
+
+.navbar-item i,
+.navbar-user i {
+    margin-right: 0.5rem;
+    color: var(--accent-color);
 }
 
 /* Todo list styles */
@@ -146,6 +211,181 @@ html {
 .todo-list:hover {
     transform: scale(1.01);
     box-shadow: 0 0 15px rgba(192, 160, 128, 0.3);
+}
+
+/* Enhanced Todo Items Styling */
+.items-container {
+    margin-top: 1rem;
+}
+
+.todo-item {
+    margin: 0.5rem 0;
+    transition: all 0.3s ease;
+}
+
+.item-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border: 1px solid var(--secondary-color);
+    background: linear-gradient(
+        to right,
+        rgba(74, 44, 42, 0.7),
+        rgba(74, 44, 42, 0.3)
+    );
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.item-content:hover {
+    transform: translateX(5px);
+    box-shadow: -5px 0 10px rgba(192, 160, 128, 0.2);
+}
+
+/* Level indentation with decorative line */
+.level-1 { margin-left: 2rem; }
+.level-2 { margin-left: 4rem; }
+.level-3 { margin-left: 6rem; }
+
+.level-1::before,
+.level-2::before,
+.level-3::before {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 50%;
+    width: 1rem;
+    height: 2px;
+    background: var(--secondary-color);
+    opacity: 0.5;
+}
+
+/* Improved Checkbox Styling */
+.btn-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.2rem;
+    color: var(--secondary-color);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+}
+
+.btn-toggle:hover {
+    transform: scale(1.2);
+}
+
+.btn-toggle i {
+    transition: all 0.3s ease;
+}
+
+.btn-toggle.completed i {
+    color: var(--accent-color);
+    filter: drop-shadow(0 0 2px rgba(192, 160, 128, 0.5));
+}
+
+/* Item Title Styling */
+.item-title {
+    flex: 1;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    padding: 0.25rem 0;
+}
+
+.item-title.completed {
+    opacity: 0.6;
+    text-decoration: none;
+    color: var(--accent-color);
+    font-style: italic;
+    position: relative;
+}
+
+.item-title.completed::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: var(--accent-color);
+    opacity: 0.5;
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: strikethrough 0.3s ease-out forwards;
+}
+
+@keyframes strikethrough {
+    to {
+        transform: scaleX(1);
+    }
+}
+
+/* Expand/Collapse Button */
+.btn-expand {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--secondary-color);
+    transition: all 0.3s ease;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-expand:hover {
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.btn-expand.expanded i {
+    transform: rotate(0deg);
+}
+
+.btn-expand i {
+    transition: transform 0.3s ease;
+}
+
+/* Children Container */
+.children-container {
+    position: relative;
+    padding-left: 1rem;
+}
+
+.children-container::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--secondary-color),
+        transparent
+    );
+    opacity: 0.3;
+}
+
+/* Add subtle hover effect for entire item */
+.todo-item:hover > .item-content {
+    background: linear-gradient(
+        to right,
+        rgba(74, 44, 42, 0.9),
+        rgba(74, 44, 42, 0.5)
+    );
 }
 
 /* Form styles */

@@ -17,23 +17,24 @@
         <nav class="navbar">
             <div class="navbar-brand">
                 <a href="{{ url_for('todos.index') }}" class="navbar-logo">
-                    <i class="fas fa-scroll"></i> Medieval Todos
+                    <i class="fas fa-scroll"></i>
+                    <span><b>Medieval Todos</b></span>
                 </a>
             </div>
             <div class="navbar-menu">
                 {% if current_user.is_authenticated %}
                 <span class="navbar-user">
-                    <i class="fas fa-user"></i> {{ current_user.username }}
+                    <i class="fas fa-crown"></i>{{ current_user.username }}
                 </span>
                 <a href="{{ url_for('auth.logout') }}" class="navbar-item">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                    <i class="fas fa-sign-out-alt"></i>Leave Realm
                 </a>
                 {% else %}
                 <a href="{{ url_for('auth.login') }}" class="navbar-item">
-                    <i class="fas fa-sign-in-alt"></i> Login
+                    <i class="fas fa-sign-in-alt"></i>Enter Realm
                 </a>
                 <a href="{{ url_for('auth.register') }}" class="navbar-item">
-                    <i class="fas fa-user-plus"></i> Register
+                    <i class="fas fa-user-plus"></i>Join Kingdom
                 </a>
                 {% endif %}
             </div>
