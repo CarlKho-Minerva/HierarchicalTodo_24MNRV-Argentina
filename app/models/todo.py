@@ -90,8 +90,11 @@ class TodoItem(db.Model):
         Toggle the completed status of this item and all its children.
         """
         self.completed = not self.completed
-        for child in self.children:
+        # Recursively update all children
+        for child in self.children.all():
             child.completed = self.completed
+            for grandchild in child.children.all():
+                grandchild.completed = self.completed
 
     def toggle_expanded(self) -> None:
         """

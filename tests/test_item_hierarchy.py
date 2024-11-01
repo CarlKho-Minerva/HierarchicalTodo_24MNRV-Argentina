@@ -118,31 +118,19 @@ def test_edit_items_at_all_levels(authenticated_client, test_list):
     # Create items at all levels
     authenticated_client.post(
         "/item/create",
-        data={
-            "list_id": test_list.id,
-            "title": "Level 1",
-            "parent_id": None
-        }
+        data={"list_id": test_list.id, "title": "Level 1", "parent_id": None},
     )
     level1_item = TodoItem.query.filter_by(title="Level 1").first()
 
     authenticated_client.post(
         "/item/create",
-        data={
-            "list_id": test_list.id,
-            "parent_id": level1_item.id,
-            "title": "Level 2"
-        }
+        data={"list_id": test_list.id, "parent_id": level1_item.id, "title": "Level 2"},
     )
     level2_item = TodoItem.query.filter_by(title="Level 2").first()
 
     authenticated_client.post(
         "/item/create",
-        data={
-            "list_id": test_list.id,
-            "parent_id": level2_item.id,
-            "title": "Level 3"
-        }
+        data={"list_id": test_list.id, "parent_id": level2_item.id, "title": "Level 3"},
     )
     level3_item = TodoItem.query.filter_by(title="Level 3").first()
 
@@ -158,8 +146,8 @@ def test_edit_items_at_all_levels(authenticated_client, test_list):
             f"/item/{item.id}/edit",
             data={
                 "title": new_title,
-                "list_id": test_list.id  # Add list_id to the request
-            }
+                "list_id": test_list.id,  # Add list_id to the request
+            },
         )
         assert response.status_code in [200, 302]
         db.session.refresh(item)  # Refresh the item from the database
@@ -171,31 +159,19 @@ def test_delete_items_at_all_levels(authenticated_client, test_list):
     # Create full hierarchy
     authenticated_client.post(
         "/item/create",
-        data={
-            "list_id": test_list.id,
-            "title": "Level 1",
-            "parent_id": None
-        }
+        data={"list_id": test_list.id, "title": "Level 1", "parent_id": None},
     )
     level1_item = TodoItem.query.filter_by(title="Level 1").first()
 
     authenticated_client.post(
         "/item/create",
-        data={
-            "list_id": test_list.id,
-            "parent_id": level1_item.id,
-            "title": "Level 2"
-        }
+        data={"list_id": test_list.id, "parent_id": level1_item.id, "title": "Level 2"},
     )
     level2_item = TodoItem.query.filter_by(title="Level 2").first()
 
     authenticated_client.post(
         "/item/create",
-        data={
-            "list_id": test_list.id,
-            "parent_id": level2_item.id,
-            "title": "Level 3"
-        }
+        data={"list_id": test_list.id, "parent_id": level2_item.id, "title": "Level 3"},
     )
     level3_item = TodoItem.query.filter_by(title="Level 3").first()
 
@@ -206,8 +182,7 @@ def test_delete_items_at_all_levels(authenticated_client, test_list):
 
     # Delete level 1 item and verify cascading delete
     response = authenticated_client.post(
-        f"/item/{level1_item.id}/delete",
-        data={"list_id": test_list.id}
+        f"/item/{level1_item.id}/delete", data={"list_id": test_list.id}
     )
     assert response.status_code == 302
 
@@ -301,3 +276,72 @@ def test_move_maintains_hierarchy(authenticated_client):
     )
     assert moved_middle.parent_id == moved_top.id
     assert moved_bottom.parent_id == moved_middle.id
+
+
+def test_toggle_item_completion(authenticated_client, test_list):
+    """Test marking items as complete and verifying cascade to children"""
+    # Create parent with children
+    authenticated_client.post(
+        "/item/create", data={"list_id": test_list.id, "title": "Parent Task"}
+    )
+    parent = TodoItem.query.filter_by(title="Parent Task").first()
+
+    authenticated_client.post(
+        "/item/create",
+        data={"list_id": test_list.id, "parent_id": parent.id, "title": "Child Task"},
+    )
+    child = TodoItem.query.filter_by(title="Child Task").first()
+
+    # Toggle parent completion
+    response = authenticated_client.post(f"/item/{parent.id}/toggle")
+    assert response.status_code == 302
+
+    # Verify both parent and child are marked complete
+    db.session.refresh(parent)
+    db.session.refresh(child)
+    assert parent.completed is True
+    assert child.completed is True
+
+
+def test_toggle_item_expansion(authenticated_client, test_list):
+    """Test expanding/collapsing items"""
+    # Create item
+    authenticated_client.post(
+        "/item/create", data={"list_id": test_list.id, "title": "Expandable Task"}
+    )
+    item = TodoItem.query.filter_by(title="Expandable Task").first()
+
+    # Toggle expansion
+    response = authenticated_client.post(f"/item/{item.id}/expand")
+    assert response.status_code == 302
+
+    db.session.refresh(item)
+    assert item.is_expanded is False
+
+    # Toggle back
+    response = authenticated_client.post(f"/item/{item.id}/expand")
+    db.session.refresh(item)
+    assert item.is_expanded is True
+
+
+def test_show_hide_completed_items(authenticated_client, test_list):
+    """Test toggling visibility of completed items in a list"""
+    # Create and complete an item
+    authenticated_client.post(
+        "/item/create", data={"list_id": test_list.id, "title": "Completed Task"}
+    )
+    item = TodoItem.query.filter_by(title="Completed Task").first()
+    authenticated_client.post(f"/item/{item.id}/toggle")
+
+    # Toggle completed items visibility
+    response = authenticated_client.post(f"/list/{test_list.id}/toggle-completed")
+    assert response.status_code == 302
+
+    # Verify list preference was updated
+    db.session.refresh(test_list)
+    assert test_list.show_completed is False
+
+    # Toggle back
+    authenticated_client.post(f"/list/{test_list.id}/toggle-completed")
+    db.session.refresh(test_list)
+    assert test_list.show_completed is True
