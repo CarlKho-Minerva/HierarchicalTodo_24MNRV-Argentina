@@ -36,22 +36,26 @@
 
         <div class="item-actions">
             {% if item.can_have_children() %}
-            <button class="btn btn-small" onclick="showSubitemForm({{ item.id }})">
-                <i class="fas fa-plus"></i>
+            <button class="btn btn-small btn-add"
+                    data-tooltip="Add Sub-quest">
+                <i class="fas fa-tasks"></i>
             </button>
             {% endif %}
-            <button class="btn btn-small" onclick="showMoveForm({{ item.id }})">
-                <i class="fas fa-arrows-alt"></i>
+
+            <button class="btn btn-small btn-move"
+                    data-tooltip="Move Quest">
+                <i class="fas fa-exchange-alt"></i>
             </button>
-            <button class="btn btn-small" onclick="showEditItemForm({{ item.id }})">
+
+            <button class="btn btn-small btn-edit"
+                    data-tooltip="Edit Quest">
                 <i class="fas fa-edit"></i>
             </button>
-            <form method="POST" action="{{ url_for('todos.delete_item', item_id=item.id) }}" class="delete-item-form"
-                data-ajax="true" style="display: inline;">
-                <button type="submit" class="btn btn-danger btn-small">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </form>
+
+            <button class="btn btn-small btn-delete"
+                    data-tooltip="Delete Quest">
+                <i class="fas fa-trash"></i>
+            </button>
         </div>
     </div>
 

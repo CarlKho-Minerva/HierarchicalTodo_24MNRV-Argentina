@@ -213,6 +213,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
+
+  // Enhance tooltip positioning
+  const tooltipElements = document.querySelectorAll('[data-tooltip]');
+  tooltipElements.forEach(element => {
+      element.addEventListener('mouseenter', (e) => {
+          const tooltip = element.querySelector(':before');
+          if (tooltip) {
+              const rect = element.getBoundingClientRect();
+              const viewportWidth = window.innerWidth;
+
+              if (rect.left < 100) {
+                  element.style.setProperty('--tooltip-left', '0');
+                  element.style.setProperty('--tooltip-transform', 'translateX(0)');
+              } else if (rect.right > viewportWidth - 100) {
+                  element.style.setProperty('--tooltip-left', '100%');
+                  element.style.setProperty('--tooltip-transform', 'translateX(-100%)');
+              }
+          }
+      });
+  });
 });
 
 function handleToggleResponse(form, data) {
