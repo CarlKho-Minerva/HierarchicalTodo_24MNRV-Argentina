@@ -28,6 +28,7 @@ class TodoList(db.Model):
         backref="todo_list",
         lazy="dynamic",
         primaryjoin="and_(TodoList.id==TodoItem.list_id, TodoItem.parent_id==None)",
+        cascade="all, delete-orphan"
     )
     show_completed: bool = Column(db.Boolean, default=True)
 

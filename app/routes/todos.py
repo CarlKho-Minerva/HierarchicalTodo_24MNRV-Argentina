@@ -1,6 +1,6 @@
 """Todo management routes for the Medieval Todo List application."""
 
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from typing import Union, Dict, Any
 from app.models.todo import TodoList, TodoItem
@@ -62,14 +62,30 @@ def delete_list(list_id: int) -> Union[Dict[str, Any], redirect]:
         redirect for form submissions
     """
     todo_list = TodoList.query.get_or_404(list_id)
+    if todo_list.user_id != current_user.id:
+        abort(403)
 
+    # First, recursively delete all items in the list
+    items_to_delete = []
+    def get_items_recursively(items):
+        for item in items:
+            items_to_delete.append(item)
+            get_items_recursively(item.children)
+
+    get_items_recursively(todo_list.items)
+
+    # Delete all items
+    for item in reversed(items_to_delete):  # Delete in reverse order to handle children first
+        db.session.delete(item)
+
+    # Then delete the list itself
     db.session.delete(todo_list)
     db.session.commit()
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return jsonify({"success": True})
 
-    flash("List deleted successfully!", "success")
+    flash("Quest list deleted successfully!", "success")
     return redirect(url_for("todos.index"))
 
 
@@ -309,3 +325,53 @@ def toggle_completed_view(list_id: int) -> Union[Dict[str, Any], redirect]:
         return jsonify({"show_completed": todo_list.show_completed})
 
     return redirect(url_for("todos.index"))
+
+
+@bp.route("/item/move-position", methods=["POST"])
+@login_required
+def move_item_position():
+    data = request.json
+    item_id = data.get("item_id")
+    target_id = data.get("target_id")
+
+    if not item_id or not target_id:
+        return jsonify({"success": False}), 400
+
+    try:
+        item = TodoItem.query.get_or_404(item_id)
+        target = TodoItem.query.get_or_404(target_id)
+
+        # Ensure user owns both items
+        if (
+            item.list.user_id != current_user.id
+            or target.list.user_id != current_user.id
+        ):
+            return jsonify({"success": False}), 403
+
+        # Update positions
+        old_position = item.position
+        new_position = target.position
+
+        if old_position < new_position:
+            # Moving down
+            TodoItem.query.filter(
+                TodoItem.list_id == item.list_id,
+                TodoItem.position > old_position,
+                TodoItem.position <= new_position,
+            ).update({"position": TodoItem.position - 1})
+        else:
+            # Moving up
+            TodoItem.query.filter(
+                TodoItem.list_id == item.list_id,
+                TodoItem.position >= new_position,
+                TodoItem.position < old_position,
+            ).update({"position": TodoItem.position + 1})
+
+        item.position = new_position
+        db.session.commit()
+
+        return jsonify({"success": True})
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False}), 500
