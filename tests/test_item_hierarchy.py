@@ -345,3 +345,82 @@ def test_show_hide_completed_items(authenticated_client, test_list):
     authenticated_client.post(f"/list/{test_list.id}/toggle-completed")
     db.session.refresh(test_list)
     assert test_list.show_completed is True
+
+
+def test_validation_checks(authenticated_client, test_list):
+    """Test input validation for item operations"""
+    # Try to create item without required fields
+    response = authenticated_client.post("/item/create", data={})
+    assert response.status_code == 302
+    assert TodoItem.query.count() == 0
+
+    # Try to create item with empty title
+    response = authenticated_client.post(
+        "/item/create", data={"list_id": test_list.id, "title": ""}
+    )
+    assert response.status_code == 302
+    assert TodoItem.query.count() == 0
+
+    # Try to create item with invalid list_id
+    response = authenticated_client.post(
+        "/item/create", data={"list_id": 999, "title": "Invalid List"}
+    )
+    assert response.status_code in [302, 404]
+    assert TodoItem.query.count() == 0
+
+
+def test_item_completion_cascade(authenticated_client, test_list):
+    """Test that completing a parent item cascades to all children and grandchildren"""
+    # Create three-level hierarchy
+    authenticated_client.post(
+        "/item/create", data={"list_id": test_list.id, "title": "Parent"}
+    )
+    parent = TodoItem.query.filter_by(title="Parent").first()
+
+    authenticated_client.post(
+        "/item/create",
+        data={"list_id": test_list.id, "parent_id": parent.id, "title": "Child"},
+    )
+    child = TodoItem.query.filter_by(title="Child").first()
+
+    authenticated_client.post(
+        "/item/create",
+        data={"list_id": test_list.id, "parent_id": child.id, "title": "Grandchild"},
+    )
+    grandchild = TodoItem.query.filter_by(title="Grandchild").first()
+
+    # Toggle parent completion
+    authenticated_client.post(f"/item/{parent.id}/toggle")
+
+    # Verify all items are completed
+    db.session.refresh(parent)
+    db.session.refresh(child)
+    db.session.refresh(grandchild)
+    assert all(item.completed for item in [parent, child, grandchild])
+
+    # Toggle parent again
+    authenticated_client.post(f"/item/{parent.id}/toggle")
+
+    # Verify all items are uncompleted
+    db.session.refresh(parent)
+    db.session.refresh(child)
+    db.session.refresh(grandchild)
+    assert not any(item.completed for item in [parent, child, grandchild])
+
+
+def test_list_visibility_preferences(authenticated_client):
+    """Test that list visibility preferences are user-specific"""
+    # Create two lists
+    authenticated_client.post("/list/create", data={"title": "List 1"})
+    authenticated_client.post("/list/create", data={"title": "List 2"})
+    list1 = TodoList.query.filter_by(title="List 1").first()
+    list2 = TodoList.query.filter_by(title="List 2").first()
+
+    # Toggle visibility for first list
+    authenticated_client.post(f"/list/{list1.id}/toggle-completed")
+
+    # Verify lists have different visibility settings
+    db.session.refresh(list1)
+    db.session.refresh(list2)
+    assert list1.show_completed is False
+    assert list2.show_completed is True
