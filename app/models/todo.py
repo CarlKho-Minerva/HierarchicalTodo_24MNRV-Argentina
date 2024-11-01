@@ -1,8 +1,9 @@
 """Todo models for the Medieval Todo List application."""
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 from app import db
+from sqlalchemy import Column, Boolean
 
 
 class TodoList(db.Model):
@@ -17,9 +18,10 @@ class TodoList(db.Model):
         items: Relationship to top-level todo items in this list
     """
 
-    id: int = db.Column(db.Integer, primary_key=True)
-    title: str = db.Column(db.String(100), nullable=False)
-    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
+    id: int = Column(db.Integer, primary_key=True)
+    title: str = Column(db.String(100), nullable=False)
+    created_at: datetime = Column(db.DateTime, default=datetime.utcnow)
+    user_id: int = Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     items = db.relationship(
         "TodoItem",
@@ -27,6 +29,7 @@ class TodoList(db.Model):
         lazy="dynamic",
         primaryjoin="and_(TodoList.id==TodoItem.list_id, TodoItem.parent_id==None)",
     )
+    show_completed: bool = Column(db.Boolean, default=True)
 
     def update_title(self, new_title: str) -> None:
         """
@@ -36,6 +39,18 @@ class TodoList(db.Model):
             new_title: New title for the todo list
         """
         self.title = new_title
+
+    def toggle_show_completed(self) -> None:
+        """Toggle visibility of completed items."""
+        self.show_completed = not self.show_completed
+
+    @property
+    def visible_items(self):
+        """Return items based on show_completed preference."""
+        base_query = self.items
+        if not self.show_completed:
+            base_query = base_query.filter_by(completed=False)
+        return base_query
 
 
 class TodoItem(db.Model):
@@ -53,13 +68,13 @@ class TodoItem(db.Model):
         is_expanded: Whether the item's children are shown in the UI
     """
 
-    id: int = db.Column(db.Integer, primary_key=True)
-    title: str = db.Column(db.String(200), nullable=False)
-    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
-    completed: bool = db.Column(db.Boolean, default=False)
-    list_id: int = db.Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=False)
-    parent_id: Optional[int] = db.Column(db.Integer, db.ForeignKey("todo_item.id"))
-    is_expanded: bool = db.Column(db.Boolean, default=True)
+    id: int = Column(db.Integer, primary_key=True)
+    title: str = Column(db.String(200), nullable=False)
+    created_at: datetime = Column(db.DateTime, default=datetime.utcnow)
+    completed: bool = Column(db.Boolean, default=False)
+    list_id: int = Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=False)
+    parent_id: Optional[int] = Column(db.Integer, db.ForeignKey("todo_item.id"))
+    is_expanded: bool = Column(db.Boolean, default=True)
 
     # Self-referential relationship for hierarchical structure
     children = db.relationship(
