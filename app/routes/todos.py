@@ -63,13 +63,25 @@ def delete_list(list_id: int) -> Union[Dict[str, Any], redirect]:
     """
     todo_list = TodoList.query.get_or_404(list_id)
 
-    db.session.delete(todo_list)
-    db.session.commit()
+    if todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
 
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({"success": True})
+    try:
+        # Delete all items in the list first
+        TodoItem.query.filter_by(list_id=list_id).delete()
+        # Then delete the list itself
+        db.session.delete(todo_list)
+        db.session.commit()
 
-    flash("List deleted successfully!", "success")
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"success": True})
+
+        flash("List deleted successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash("Error deleting list.", "error")
+
     return redirect(url_for("todos.index"))
 
 

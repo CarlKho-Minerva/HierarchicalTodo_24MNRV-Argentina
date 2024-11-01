@@ -18,18 +18,19 @@ class TodoList(db.Model):
         items: Relationship to top-level todo items in this list
     """
 
+    __tablename__ = 'todo_list'
     id: int = Column(db.Integer, primary_key=True)
     title: str = Column(db.String(100), nullable=False)
     created_at: datetime = Column(db.DateTime, default=datetime.utcnow)
-    user_id: int = Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id", name="fk_todolist_user"), nullable=False)
     items = db.relationship(
         "TodoItem",
-        backref="todo_list",
+        backref="list",
         lazy="dynamic",
+        cascade="all, delete-orphan",  # Add cascade delete
         primaryjoin="and_(TodoList.id==TodoItem.list_id, TodoItem.parent_id==None)",
     )
-    show_completed: bool = Column(db.Boolean, default=True)
+    show_completed: bool = db.Column(db.Boolean, default=True)
 
     def update_title(self, new_title: str) -> None:
         """
@@ -72,8 +73,10 @@ class TodoItem(db.Model):
     title: str = Column(db.String(200), nullable=False)
     created_at: datetime = Column(db.DateTime, default=datetime.utcnow)
     completed: bool = Column(db.Boolean, default=False)
-    list_id: int = Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=False)
-    parent_id: Optional[int] = Column(db.Integer, db.ForeignKey("todo_item.id"))
+    list_id = db.Column(
+        db.Integer, db.ForeignKey("todo_list.id", name="fk_todoitem_list", ondelete="CASCADE"), nullable=False
+    )
+    parent_id: Optional[int] = Column(db.Integer, db.ForeignKey("todo_item.id", name="fk_todoitem_parent", ondelete="CASCADE"))
     is_expanded: bool = Column(db.Boolean, default=True)
 
     # Self-referential relationship for hierarchical structure
