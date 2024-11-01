@@ -286,3 +286,22 @@ def delete_item(item_id: int) -> Union[Dict[str, Any], redirect]:
 
     flash("Item deleted successfully!", "success")
     return redirect(url_for("todos.index"))
+
+
+@bp.route("/list/<int:list_id>/toggle-completed", methods=["POST"])
+@login_required
+def toggle_completed_view(list_id: int) -> Union[Dict[str, Any], redirect]:
+    """Toggle the visibility of completed items for a list."""
+    todo_list = TodoList.query.get_or_404(list_id)
+
+    if todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
+    todo_list.toggle_show_completed()
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"show_completed": todo_list.show_completed})
+
+    return redirect(url_for("todos.index"))
