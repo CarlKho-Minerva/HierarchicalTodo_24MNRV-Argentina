@@ -25,7 +25,7 @@ class TodoList(db.Model):
         "TodoItem",
         backref="todo_list",
         lazy="dynamic",
-        primaryjoin="and_(TodoList.id==TodoItem.list_id, " "TodoItem.parent_id==None)",
+        primaryjoin="and_(TodoList.id==TodoItem.list_id, TodoItem.parent_id==None)",
     )
 
     def update_title(self, new_title: str) -> None:

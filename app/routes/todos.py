@@ -156,14 +156,6 @@ def toggle_item(item_id):
         flash("Item not found.", "error")
         return redirect(url_for("todos.index"))
 
-    if item.todo_list is None:
-        flash("Todo list not found.", "error")
-        return redirect(url_for("todos.index"))
-
-    if item.todo_list.user_id != current_user.id:
-        flash("You do not have permission to modify this item.", "error")
-        return redirect(url_for("todos.index"))
-
     # Toggle the item's completion status
     item.completed = not item.completed
     db.session.commit()
@@ -185,6 +177,14 @@ def toggle_expand(item_id: int) -> Union[Dict[str, Any], redirect]:
         redirect for form submissions
     """
     item = TodoItem.query.get_or_404(item_id)
+
+    if item.todo_list is None:
+        flash("Todo list not found.", "error")
+        return redirect(url_for("todos.index"))
+
+    if item.todo_list.user_id != current_user.id:
+        flash("You do not have permission to modify this item.", "error")
+        return redirect(url_for("todos.index"))
 
     item.toggle_expanded()
     db.session.commit()
