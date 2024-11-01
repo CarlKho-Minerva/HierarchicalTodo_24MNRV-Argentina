@@ -153,15 +153,28 @@
 <!-- Move Item Modal -->
 <div id="moveModal" class="modal">
     <div class="modal-content">
-        <h3>Move Quest to Another List</h3>
+        <button type="button" class="modal-close" onclick="closeMoveModal()">
+            <i class="fas fa-times"></i>
+        </button>
+        <h3>
+            <i class="fas fa-exchange-alt"></i>
+            Move Quest to Another List
+        </h3>
         <form method="POST" id="moveItemForm" data-ajax="true">
-            <select name="list_id" required>
-                {% for list in lists %}
-                <option value="{{ list.id }}">{{ list.title }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="btn btn-primary">Move</button>
-            <button type="button" class="btn btn-secondary" onclick="closeMoveModal()">Cancel</button>
+            <div class="select-wrapper">
+                <select name="list_id" required>
+                    <option value="" disabled selected>Select destination list...</option>
+                    {% for list in lists %}
+                    <option value="{{ list.id }}">{{ list.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeMoveModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check"></i> Move
+                </button>
+            </div>
         </form>
     </div>
 </div>
