@@ -18,18 +18,24 @@ class TodoList(db.Model):
         items: Relationship to top-level todo items in this list
     """
 
-    __tablename__ = 'todo_list'
+    __tablename__ = "todo_list"
     id: int = Column(db.Integer, primary_key=True)
     title: str = Column(db.String(100), nullable=False)
     created_at: datetime = Column(db.DateTime, default=datetime.utcnow)
-    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id", name="fk_todolist_user"), nullable=False)
+    user_id: int = db.Column(
+        db.Integer, db.ForeignKey("user.id", name="fk_todolist_user"), nullable=False
+    )
     items = db.relationship(
-        'TodoItem',
-        backref='todo_list',
+        "TodoItem",
+        backref="todo_list",
         cascade="all, delete-orphan",  # Keep only one cascade parameter
-        lazy=True
+        lazy=True,
     )
     show_completed: bool = db.Column(db.Boolean, default=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.show_completed = True  # Set initial value to True
 
     def update_title(self, new_title: str) -> None:
         """
@@ -44,13 +50,24 @@ class TodoList(db.Model):
         """Toggle visibility of completed items."""
         self.show_completed = not self.show_completed
 
+    def toggle_completed_visibility(self):
+        """Toggle visibility of completed items."""
+        self.show_completed = not self.show_completed
+
     @property
     def visible_items(self):
-        """Return items based on show_completed preference."""
-        base_query = self.items
+        """Return visible top-level items based on show_completed setting"""
+        query = TodoItem.query.filter_by(list_id=self.id, parent_id=None)
         if not self.show_completed:
-            base_query = base_query.filter_by(completed=False)
-        return base_query
+            query = query.filter_by(completed=False)
+        return query.order_by(TodoItem.created_at.desc()).all()
+
+    def get_visible_children(self, parent_id):
+        """Get visible children for a parent item."""
+        children = self.items.filter_by(parent_id=parent_id)
+        if not self.show_completed:
+            children = children.filter(TodoItem.completed == False)
+        return children.order_by(TodoItem.created_at.desc()).all()
 
 
 class TodoItem(db.Model):
@@ -73,9 +90,14 @@ class TodoItem(db.Model):
     created_at: datetime = Column(db.DateTime, default=datetime.utcnow)
     completed: bool = Column(db.Boolean, default=False)
     list_id = db.Column(
-        db.Integer, db.ForeignKey("todo_list.id", name="fk_todoitem_list", ondelete="CASCADE"), nullable=False
+        db.Integer,
+        db.ForeignKey("todo_list.id", name="fk_todoitem_list", ondelete="CASCADE"),
+        nullable=False,
     )
-    parent_id: Optional[int] = Column(db.Integer, db.ForeignKey("todo_item.id", name="fk_todoitem_parent", ondelete="CASCADE"))
+    parent_id: Optional[int] = Column(
+        db.Integer,
+        db.ForeignKey("todo_item.id", name="fk_todoitem_parent", ondelete="CASCADE"),
+    )
     is_expanded: bool = Column(db.Boolean, default=True)
 
     # Self-referential relationship for hierarchical structure
@@ -149,3 +171,14 @@ class TodoItem(db.Model):
             new_title: New title for the todo item
         """
         self.title = new_title
+
+    @property
+    def visible_children(self):
+        """Get visible children based on list's show_completed setting."""
+        if self.list.show_completed:
+            return self.children.order_by(TodoItem.created_at.desc()).all()
+        return [
+            child
+            for child in self.children.order_by(TodoItem.created_at.desc())
+            if not child.completed
+        ]

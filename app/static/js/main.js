@@ -191,6 +191,29 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
+
+  document.querySelectorAll('.toggle-completed-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const button = this.querySelector('button');
+                const icon = button.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+                button.title = data.show_completed ? 'Hide completed tasks' : 'Show completed tasks';
+                location.reload(); // Refresh to update the list view
+            }
+        });
+    });
+  });
 });
 
 // Todo item interactions

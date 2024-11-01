@@ -291,6 +291,19 @@ html {
     filter: drop-shadow(0 0 2px rgba(192, 160, 128, 0.5));
 }
 
+.btn-toggle-completed {
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.btn-toggle-completed:hover {
+    opacity: 1;
+}
+
+.btn-toggle-completed.active {
+    color: var(--accent-color);
+}
+
 /* Item Title Styling */
 .item-title {
     flex: 1;

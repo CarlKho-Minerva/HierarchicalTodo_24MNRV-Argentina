@@ -4,8 +4,8 @@
         <div class="list-actions">
             <form method="POST" action="{{ url_for('todos.toggle_completed_view', list_id=list.id) }}"
                 class="toggle-completed-form" data-ajax="true">
-                <button type="submit" class="btn btn-small">
-                    <i class="fas {{ 'fa-eye-slash' if list.show_completed else 'fa-eye' }}"></i>
+                <button type="submit" class="btn btn-small" title="{{ 'Hide completed tasks' if list.show_completed else 'Show completed tasks' }}">
+                    <i class="fas {{ 'fa-eye' if list.show_completed else 'fa-eye-slash' }}"></i>
                 </button>
             </form>
             <button class="btn btn-small" onclick="showEditForm('{{ list.id }}')">

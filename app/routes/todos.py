@@ -34,12 +34,10 @@ def index() -> str:
 @bp.route("/list/create", methods=["POST"])
 @login_required
 def create_list() -> Union[Dict[str, Any], redirect]:
-    """
-    Create a new todo list.
+    """Create a new todo list.
 
     Returns:
-        Union[Dict[str, Any], redirect]: JSON response for API calls,
-        redirect for form submissions
+        Union[Dict[str, Any], redirect]: JSON response or redirect
     """
     title = request.form.get("title")
     if not title:
@@ -51,9 +49,57 @@ def create_list() -> Union[Dict[str, Any], redirect]:
     db.session.commit()
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({"id": todo_list.id, "title": todo_list.title})
+        return jsonify({"success": True, "id": todo_list.id, "title": todo_list.title})
 
     flash("List created successfully!", "success")
+    return redirect(url_for("todos.index"))
+
+
+@bp.route("/item/create", methods=["POST"])
+@login_required
+def create_item() -> Union[Dict[str, Any], redirect]:
+    """Create a new todo item."""
+    list_id = request.form.get("list_id", type=int)
+    parent_id = request.form.get("parent_id", type=int)
+    title = request.form.get("title")
+
+    if not all([list_id, title]):
+        flash("List ID and title are required.", "error")
+        return redirect(url_for("todos.index"))
+
+    todo_list = TodoList.query.get_or_404(list_id)
+    if todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
+    if parent_id:
+        parent = TodoItem.query.get_or_404(parent_id)
+        if not parent.can_have_children():
+            flash("Maximum nesting level reached.", "error")
+            return redirect(url_for("todos.index"))
+
+    # Create the item with explicit defaults
+    item = TodoItem(
+        title=title,
+        list_id=list_id,
+        parent_id=parent_id,
+        completed=False,
+        is_expanded=True,
+    )
+    db.session.add(item)
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify(
+            {
+                "success": True,
+                "id": item.id,
+                "title": item.title,
+                "parent_id": item.parent_id,
+            }
+        )
+
+    flash("Item created successfully!", "success")
     return redirect(url_for("todos.index"))
 
 
@@ -136,48 +182,6 @@ def edit_list(list_id: int) -> Union[Dict[str, Any], redirect]:
         return jsonify({"success": True})
 
     flash("List name updated successfully!", "success")
-    return redirect(url_for("todos.index"))
-
-
-@bp.route("/item/create", methods=["POST"])
-@login_required
-def create_item() -> Union[Dict[str, Any], redirect]:
-    """
-    Create a new todo item.
-
-    Returns:
-        Union[Dict[str, Any], redirect]: JSON response for API calls,
-        redirect for form submissions
-    """
-    list_id = request.form.get("list_id", type=int)
-    parent_id = request.form.get("parent_id", type=int)
-    title = request.form.get("title")
-
-    if not all([list_id, title]):
-        flash("List ID and title are required.", "error")
-        return redirect(url_for("todos.index"))
-
-    todo_list = TodoList.query.get_or_404(list_id)
-    if todo_list.user_id != current_user.id:
-        flash("Unauthorized action.", "error")
-        return redirect(url_for("todos.index"))
-
-    if parent_id:
-        parent = TodoItem.query.get_or_404(parent_id)
-        if not parent.can_have_children():
-            flash("Maximum nesting level reached.", "error")
-            return redirect(url_for("todos.index"))
-
-    item = TodoItem(title=title, list_id=list_id, parent_id=parent_id)
-    db.session.add(item)
-    db.session.commit()
-
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify(
-            {"id": item.id, "title": item.title, "parent_id": item.parent_id}
-        )
-
-    flash("Item created successfully!", "success")
     return redirect(url_for("todos.index"))
 
 
@@ -325,22 +329,35 @@ def delete_item(item_id: int) -> Union[Dict[str, Any], redirect]:
     return redirect(url_for("todos.index"))
 
 
-@bp.route("/list/<int:list_id>/toggle-completed", methods=["POST"])
+@bp.route(
+    "/list/<int:list_id>/toggle-completed", methods=["POST"]
+)  # Changed from toggle_completed to toggle-completed
 @login_required
-def toggle_completed_view(list_id: int) -> Union[Dict[str, Any], redirect]:
-    """Toggle the visibility of completed items for a list."""
-    todo_list = TodoList.query.get_or_404(list_id)
+def toggle_completed_view(list_id):
+    """Toggle visibility of completed items in a list."""
+    todo_list = TodoList.query.filter_by(
+        id=list_id, user_id=current_user.id
+    ).first_or_404()
 
-    if todo_list.user_id != current_user.id:
-        flash("Unauthorized action.", "error")
-        return redirect(url_for("todos.index"))
-
-    todo_list.toggle_show_completed()
+    # Toggle the show_completed flag
+    todo_list.show_completed = not todo_list.show_completed
     db.session.commit()
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({"show_completed": todo_list.show_completed})
+        return jsonify(
+            {
+                "success": True,
+                "show_completed": todo_list.show_completed,
+                "message": "Completed items are now "
+                + ("visible" if todo_list.show_completed else "hidden"),
+            }
+        )
 
+    flash(
+        "Completed items are now "
+        + ("visible" if todo_list.show_completed else "hidden"),
+        "info",
+    )
     return redirect(url_for("todos.index"))
 
 
@@ -392,3 +409,12 @@ def move_item_position():
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False}), 500
+
+
+@property
+def visible_items(self):
+    """Return visible top-level items based on show_completed setting"""
+    items = self.items.filter_by(parent_id=None)
+    if not self.show_completed:
+        items = items.filter_by(completed=False)
+    return items.order_by(TodoItem.created_at.desc()).all()
