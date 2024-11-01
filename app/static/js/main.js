@@ -38,53 +38,52 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // AJAX form submissions
-  const ajaxForms = document.querySelectorAll('form[data-ajax="true"]');
-  ajaxForms.forEach((form) => {
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
+  // Handle all AJAX form submissions
+  document.querySelectorAll('form[data-ajax="true"]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
 
-      fetch(form.action, {
-        method: form.method,
-        body: new FormData(form),
-        headers: {
-          "X-Requested-With": "XMLHttpRequest",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            window.location.reload();
-          }
+        fetch(this.action, {
+            method: this.method,
+            body: new FormData(this),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    });
-  });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (this.classList.contains('toggle-completed-form')) {
+                    // Update the eye icon
+                    const button = this.querySelector('button');
+                    const icon = button.querySelector('i');
+                    if (data.show_completed) {
+                        icon.classList.replace('fa-eye', 'fa-eye-slash');
+                        button.title = 'Hide completed tasks';
+                    } else {
+                        icon.classList.replace('fa-eye-slash', 'fa-eye');
+                        button.title = 'Show completed tasks';
+                    }
 
-  // AJAX form submissions
-  const ajaxForms = document.querySelectorAll('form[data-ajax="true"]');
-  ajaxForms.forEach((form) => {
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      fetch(form.action, {
-        method: form.method,
-        body: new FormData(form),
-        headers: {
-          "X-Requested-With": "XMLHttpRequest",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            window.location.reload();
-          }
+                    // Update the items container without page reload
+                    const listId = this.closest('.todo-list').dataset.listId;
+                    fetch(`/list/${listId}/items`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        const itemsContainer = this.closest('.todo-list').querySelector('.items-container');
+                        itemsContainer.innerHTML = html;
+                    });
+                } else {
+                    // Handle other form submissions as before
+                    window.location.reload();
+                }
+            }
         })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+        .catch(error => console.error('Error:', error));
     });
   });
 
@@ -216,29 +215,75 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+function handleToggleResponse(form, data) {
+  const itemContainer = form.closest('.todo-item');
+  const toggleButton = form.querySelector('.btn-toggle');
+  const itemTitle = itemContainer.querySelector('.item-title');
+  const icon = toggleButton.querySelector('i');
+
+  if (data.completed) {
+      toggleButton.classList.add('completed');
+      itemTitle.classList.add('completed');
+      icon.classList.replace('fa-circle-dot', 'fa-check-circle');
+  } else {
+      toggleButton.classList.remove('completed');
+      itemTitle.classList.remove('completed');
+      icon.classList.replace('fa-check-circle', 'fa-circle-dot');
+  }
+}
+
+function handleCompletedViewResponse(form, data) {
+  const button = form.querySelector('button');
+  const icon = button.querySelector('i');
+
+  if (data.show_completed) {
+      icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+      icon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+
+  // Reload just the items container
+  const listId = form.closest('.todo-list').dataset.listId;
+  reloadItemsContainer(listId);
+}
+
+function reloadItemsContainer(listId) {
+  fetch(`/list/${listId}/items`, {
+      headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+      }
+  })
+  .then(response => response.text())
+  .then(html => {
+      const list = document.querySelector(`.todo-list[data-list-id="${listId}"]`);
+      const itemsContainer = list.querySelector('.items-container');
+      itemsContainer.innerHTML = html;
+  });
+}
+
 // Todo item interactions
 function toggleExpand(itemId) {
-  const item = document.querySelector(`[data-item-id="${itemId}"]`);
-  const button = item.querySelector(".btn-expand");
-  const icon = button.querySelector("i");
-  const childrenContainer = item.querySelector(".children-container");
-
   fetch(`/item/${itemId}/expand`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "X-Requested-With": "XMLHttpRequest",
-    },
+        'X-Requested-With': 'XMLHttpRequest'
+    }
   })
-    .then((response) => response.json())
-    .then((data) => {
+  .then(response => response.json())
+  .then(data => {
+      const item = document.querySelector(`[data-item-id="${itemId}"]`);
+      const button = item.querySelector('.btn-expand');
+      const icon = button.querySelector('i');
+      const childrenContainer = item.querySelector('.children-container');
+
       if (data.expanded) {
-        icon.classList.replace("fa-chevron-right", "fa-chevron-down");
-        childrenContainer.style.display = "block";
+          icon.classList.replace('fa-chevron-right', 'fa-chevron-down');
+          childrenContainer.style.display = 'block';
       } else {
-        icon.classList.replace("fa-chevron-down", "fa-chevron-right");
-        childrenContainer.style.display = "none";
+          icon.classList.replace('fa-chevron-down', 'fa-chevron-right');
+          childrenContainer.style.display = 'none';
       }
-    });
+  });
 }
 
 function toggleComplete(itemId) {

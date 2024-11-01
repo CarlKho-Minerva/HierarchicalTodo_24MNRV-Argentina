@@ -188,14 +188,30 @@ def edit_list(list_id: int) -> Union[Dict[str, Any], redirect]:
 @bp.route("/item/<int:item_id>/toggle", methods=["POST"])
 @login_required
 def toggle_item(item_id):
-    """Toggle completion status of an item and its children."""
+    """Toggle completion status of an item."""
     item = TodoItem.query.get_or_404(item_id)
 
     # Use the toggle_completed method that handles children
     item.toggle_completed()
     db.session.commit()
 
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({
+            "success": True,
+            "completed": item.completed
+        })
+
     flash("Item status updated.", "success")
+    return redirect(url_for("todos.index"))
+
+# Add a new route to fetch list items separately
+@bp.route("/list/<int:list_id>/items")
+@login_required
+def get_list_items(list_id):
+    """Get items for a specific list (used for AJAX updates)."""
+    todo_list = TodoList.query.get_or_404(list_id)
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return render_template("_items_container.html", list=todo_list)
     return redirect(url_for("todos.index"))
 
 
