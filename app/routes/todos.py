@@ -62,9 +62,6 @@ def delete_list(list_id: int) -> Union[Dict[str, Any], redirect]:
         redirect for form submissions
     """
     todo_list = TodoList.query.get_or_404(list_id)
-    if todo_list.user_id != current_user.id:
-        flash("Unauthorized action.", "error")
-        return redirect(url_for("todos.index"))
 
     db.session.delete(todo_list)
     db.session.commit()
@@ -73,6 +70,39 @@ def delete_list(list_id: int) -> Union[Dict[str, Any], redirect]:
         return jsonify({"success": True})
 
     flash("List deleted successfully!", "success")
+    return redirect(url_for("todos.index"))
+
+
+@bp.route("/list/<int:list_id>/edit", methods=["POST"])
+@login_required
+def edit_list(list_id: int) -> Union[Dict[str, Any], redirect]:
+    """
+    Edit the name of a todo list.
+
+    Args:
+        list_id: ID of the list to edit
+
+    Returns:
+        Union[Dict[str, Any], redirect]: JSON response for API calls,
+        redirect for form submissions
+    """
+    new_title = request.form.get("title")
+    if not new_title:
+        flash("Title is required.", "error")
+        return redirect(url_for("todos.index"))
+
+    todo_list = TodoList.query.get_or_404(list_id)
+    if todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
+    todo_list.update_title(new_title)
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True})
+
+    flash("List name updated successfully!", "success")
     return redirect(url_for("todos.index"))
 
 
@@ -120,28 +150,19 @@ def create_item() -> Union[Dict[str, Any], redirect]:
 
 @bp.route("/item/<int:item_id>/toggle", methods=["POST"])
 @login_required
-def toggle_item(item_id: int) -> Union[Dict[str, Any], redirect]:
-    """
-    Toggle the completed status of a todo item.
-
-    Args:
-        item_id: ID of the item to toggle
-
-    Returns:
-        Union[Dict[str, Any], redirect]: JSON response for API calls,
-        redirect for form submissions
-    """
+def toggle_item(item_id):
+    """Toggle completion status of an item and its children."""
     item = TodoItem.query.get_or_404(item_id)
+
     if item.todo_list.user_id != current_user.id:
         flash("Unauthorized action.", "error")
         return redirect(url_for("todos.index"))
 
+    # Use the toggle_completed method that handles children
     item.toggle_completed()
     db.session.commit()
 
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({"completed": item.completed})
-
+    flash("Item status updated.", "success")
     return redirect(url_for("todos.index"))
 
 
@@ -159,8 +180,13 @@ def toggle_expand(item_id: int) -> Union[Dict[str, Any], redirect]:
         redirect for form submissions
     """
     item = TodoItem.query.get_or_404(item_id)
+
+    if item.todo_list is None:
+        flash("Todo list not found.", "error")
+        return redirect(url_for("todos.index"))
+
     if item.todo_list.user_id != current_user.id:
-        flash("Unauthorized action.", "error")
+        flash("You do not have permission to modify this item.", "error")
         return redirect(url_for("todos.index"))
 
     item.toggle_expanded()
@@ -185,27 +211,113 @@ def move_item(item_id: int) -> Union[Dict[str, Any], redirect]:
         Union[Dict[str, Any], redirect]: JSON response for API calls,
         redirect for form submissions
     """
+    item = TodoItem.query.get_or_404(item_id)
+    todo_list = TodoList.query.get_or_404(item.list_id)
+
+    if todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
     new_list_id = request.form.get("list_id", type=int)
     if not new_list_id:
         flash("New list ID is required.", "error")
         return redirect(url_for("todos.index"))
 
-    item = TodoItem.query.get_or_404(item_id)
     new_list = TodoList.query.get_or_404(new_list_id)
-
-    if item.todo_list.user_id != current_user.id or new_list.user_id != current_user.id:
+    if new_list.user_id != current_user.id:
         flash("Unauthorized action.", "error")
         return redirect(url_for("todos.index"))
 
-    try:
-        item.move_to_list(new_list_id)
-        db.session.commit()
-    except ValueError as e:
-        flash(str(e), "error")
-        return redirect(url_for("todos.index"))
+    # Move item to new list as a top-level item
+    item.move_to_list(new_list_id, as_top_level=True)
+    db.session.commit()
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return jsonify({"success": True})
 
     flash("Item moved successfully!", "success")
+    return redirect(url_for("todos.index"))
+
+
+@bp.route("/item/<int:item_id>/edit", methods=["POST"])
+@login_required
+def edit_item(item_id: int) -> Union[Dict[str, Any], redirect]:
+    """
+    Edit the name of a todo item.
+
+    Args:
+        item_id: ID of the item to edit
+
+    Returns:
+        Union[Dict[str, Any], redirect]: JSON response for API calls,
+        redirect for form submissions
+    """
+    item = TodoItem.query.get_or_404(item_id)
+    todo_list = TodoList.query.get_or_404(item.list_id)
+
+    if todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
+    new_title = request.form.get("title")
+    if not new_title:
+        flash("Title is required.", "error")
+        return redirect(url_for("todos.index"))
+
+    item.update_title(new_title)
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True})
+
+    flash("Item name updated successfully!", "success")
+    return redirect(url_for("todos.index"))
+
+
+@bp.route("/item/<int:item_id>/delete", methods=["POST"])
+@login_required
+def delete_item(item_id: int) -> Union[Dict[str, Any], redirect]:
+    """
+    Delete a todo item.
+
+    Args:
+        item_id: ID of the item to delete
+
+    Returns:
+        Union[Dict[str, Any], redirect]: JSON response for API calls,
+        redirect for form submissions
+    """
+    item = TodoItem.query.get_or_404(item_id)
+    todo_list = TodoList.query.get_or_404(item.list_id)
+
+    if todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
+    db.session.delete(item)
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True})
+
+    flash("Item deleted successfully!", "success")
+    return redirect(url_for("todos.index"))
+
+
+@bp.route("/list/<int:list_id>/toggle-completed", methods=["POST"])
+@login_required
+def toggle_completed_view(list_id: int) -> Union[Dict[str, Any], redirect]:
+    """Toggle the visibility of completed items for a list."""
+    todo_list = TodoList.query.get_or_404(list_id)
+
+    if todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
+    todo_list.toggle_show_completed()
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"show_completed": todo_list.show_completed})
+
     return redirect(url_for("todos.index"))

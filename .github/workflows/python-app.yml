@@ -1,0 +1,39 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+
+    - name: Create test database
+      run: |
+        mkdir -p instance
+        touch instance/test.db
+
+    - name: Run tests with pytest and coverage
+      run: |
+        pytest tests/ --cov=app --cov-report=xml -v
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

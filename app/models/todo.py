@@ -1,8 +1,9 @@
 """Todo models for the Medieval Todo List application."""
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 from app import db
+from sqlalchemy import Column, Boolean
 
 
 class TodoList(db.Model):
@@ -17,16 +18,39 @@ class TodoList(db.Model):
         items: Relationship to top-level todo items in this list
     """
 
-    id: int = db.Column(db.Integer, primary_key=True)
-    title: str = db.Column(db.String(100), nullable=False)
-    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
+    id: int = Column(db.Integer, primary_key=True)
+    title: str = Column(db.String(100), nullable=False)
+    created_at: datetime = Column(db.DateTime, default=datetime.utcnow)
+    user_id: int = Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     items = db.relationship(
         "TodoItem",
         backref="todo_list",
         lazy="dynamic",
-        primaryjoin="and_(TodoList.id==TodoItem.list_id, " "TodoItem.parent_id==None)",
+        primaryjoin="and_(TodoList.id==TodoItem.list_id, TodoItem.parent_id==None)",
     )
+    show_completed: bool = Column(db.Boolean, default=True)
+
+    def update_title(self, new_title: str) -> None:
+        """
+        Update the title of the todo list.
+
+        Args:
+            new_title: New title for the todo list
+        """
+        self.title = new_title
+
+    def toggle_show_completed(self) -> None:
+        """Toggle visibility of completed items."""
+        self.show_completed = not self.show_completed
+
+    @property
+    def visible_items(self):
+        """Return items based on show_completed preference."""
+        base_query = self.items
+        if not self.show_completed:
+            base_query = base_query.filter_by(completed=False)
+        return base_query
 
 
 class TodoItem(db.Model):
@@ -44,17 +68,21 @@ class TodoItem(db.Model):
         is_expanded: Whether the item's children are shown in the UI
     """
 
-    id: int = db.Column(db.Integer, primary_key=True)
-    title: str = db.Column(db.String(200), nullable=False)
-    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
-    completed: bool = db.Column(db.Boolean, default=False)
-    list_id: int = db.Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=False)
-    parent_id: Optional[int] = db.Column(db.Integer, db.ForeignKey("todo_item.id"))
-    is_expanded: bool = db.Column(db.Boolean, default=True)
+    id: int = Column(db.Integer, primary_key=True)
+    title: str = Column(db.String(200), nullable=False)
+    created_at: datetime = Column(db.DateTime, default=datetime.utcnow)
+    completed: bool = Column(db.Boolean, default=False)
+    list_id: int = Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=False)
+    parent_id: Optional[int] = Column(db.Integer, db.ForeignKey("todo_item.id"))
+    is_expanded: bool = Column(db.Boolean, default=True)
 
     # Self-referential relationship for hierarchical structure
+    # In app/models/todo.py
     children = db.relationship(
-        "TodoItem", backref=db.backref("parent", remote_side=[id]), lazy="dynamic"
+        "TodoItem",
+        backref=db.backref("parent", remote_side=[id]),
+        lazy="dynamic",
+        cascade="all, delete-orphan",  # This ensures cascading deletes
     )
 
     def toggle_completed(self) -> None:
@@ -62,8 +90,11 @@ class TodoItem(db.Model):
         Toggle the completed status of this item and all its children.
         """
         self.completed = not self.completed
-        for child in self.children:
+        # Recursively update all children
+        for child in self.children.all():
             child.completed = self.completed
+            for grandchild in child.children.all():
+                grandchild.completed = self.completed
 
     def toggle_expanded(self) -> None:
         """
@@ -94,13 +125,25 @@ class TodoItem(db.Model):
         """
         return self.get_level() < 2  # Limit to 3 levels (0, 1, 2)
 
-    def move_to_list(self, new_list_id: int) -> None:
+    def move_to_list(self, new_list_id: int, as_top_level: bool = False) -> None:
         """
         Move this item and all its children to a different list.
 
         Args:
             new_list_id: ID of the destination todo list
+            as_top_level: Whether to move the item as a top-level item
         """
-        if self.parent_id is not None:
-            raise ValueError("Can only move top-level items between lists")
         self.list_id = new_list_id
+        if as_top_level:
+            self.parent_id = None
+        for child in self.children:
+            child.move_to_list(new_list_id)
+
+    def update_title(self, new_title: str) -> None:
+        """
+        Update the title of the todo item.
+
+        Args:
+            new_title: New title for the todo item
+        """
+        self.title = new_title
