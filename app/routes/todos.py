@@ -150,28 +150,24 @@ def create_item() -> Union[Dict[str, Any], redirect]:
 
 @bp.route("/item/<int:item_id>/toggle", methods=["POST"])
 @login_required
-def toggle_item(item_id: int) -> Union[Dict[str, Any], redirect]:
-    """
-    Toggle the completed status of a todo item.
-
-    Args:
-        item_id: ID of the item to toggle
-
-    Returns:
-        Union[Dict[str, Any], redirect]: JSON response for API calls,
-        redirect for form submissions
-    """
-    item = TodoItem.query.get_or_404(item_id)
-    if item.todo_list.user_id != current_user.id:
-        flash("Unauthorized action.", "error")
+def toggle_item(item_id):
+    item = TodoItem.query.get(item_id)
+    if item is None:
+        flash("Item not found.", "error")
         return redirect(url_for("todos.index"))
 
-    item.toggle_completed()
+    if item.todo_list is None:
+        flash("Todo list not found.", "error")
+        return redirect(url_for("todos.index"))
+
+    if item.todo_list.user_id != current_user.id:
+        flash("You do not have permission to modify this item.", "error")
+        return redirect(url_for("todos.index"))
+
+    # Toggle the item's completion status
+    item.completed = not item.completed
     db.session.commit()
-
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({"completed": item.completed})
-
+    flash("Item status updated.", "success")
     return redirect(url_for("todos.index"))
 
 
