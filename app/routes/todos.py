@@ -150,28 +150,16 @@ def create_item() -> Union[Dict[str, Any], redirect]:
 
 @bp.route("/item/<int:item_id>/toggle", methods=["POST"])
 @login_required
-def toggle_item(item_id: int) -> Union[Dict[str, Any], redirect]:
-    """
-    Toggle the completed status of a todo item.
-
-    Args:
-        item_id: ID of the item to toggle
-
-    Returns:
-        Union[Dict[str, Any], redirect]: JSON response for API calls,
-        redirect for form submissions
-    """
-    item = TodoItem.query.get_or_404(item_id)
-    if item.todo_list.user_id != current_user.id:
-        flash("Unauthorized action.", "error")
+def toggle_item(item_id):
+    item = TodoItem.query.get(item_id)
+    if item is None:
+        flash("Item not found.", "error")
         return redirect(url_for("todos.index"))
 
-    item.toggle_completed()
+    # Toggle the item's completion status
+    item.completed = not item.completed
     db.session.commit()
-
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({"completed": item.completed})
-
+    flash("Item status updated.", "success")
     return redirect(url_for("todos.index"))
 
 
@@ -189,6 +177,14 @@ def toggle_expand(item_id: int) -> Union[Dict[str, Any], redirect]:
         redirect for form submissions
     """
     item = TodoItem.query.get_or_404(item_id)
+
+    if item.todo_list is None:
+        flash("Todo list not found.", "error")
+        return redirect(url_for("todos.index"))
+
+    if item.todo_list.user_id != current_user.id:
+        flash("You do not have permission to modify this item.", "error")
+        return redirect(url_for("todos.index"))
 
     item.toggle_expanded()
     db.session.commit()
@@ -220,19 +216,73 @@ def move_item(item_id: int) -> Union[Dict[str, Any], redirect]:
     item = TodoItem.query.get_or_404(item_id)
     new_list = TodoList.query.get_or_404(new_list_id)
 
-    if item.todo_list.user_id != current_user.id or new_list.user_id != current_user.id:
-        flash("Unauthorized action.", "error")
-        return redirect(url_for("todos.index"))
-
-    try:
-        item.move_to_list(new_list_id)
-        db.session.commit()
-    except ValueError as e:
-        flash(str(e), "error")
-        return redirect(url_for("todos.index"))
+    # Move item to new list as a top-level item
+    item.move_to_list(new_list_id, as_top_level=True)
+    db.session.commit()
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return jsonify({"success": True})
 
     flash("Item moved successfully!", "success")
+    return redirect(url_for("todos.index"))
+
+
+@bp.route("/item/<int:item_id>/edit", methods=["POST"])
+@login_required
+def edit_item(item_id: int) -> Union[Dict[str, Any], redirect]:
+    """
+    Edit the name of a todo item.
+
+    Args:
+        item_id: ID of the item to edit
+
+    Returns:
+        Union[Dict[str, Any], redirect]: JSON response for API calls,
+        redirect for form submissions
+    """
+    new_title = request.form.get("title")
+    if not new_title:
+        flash("Title is required.", "error")
+        return redirect(url_for("todos.index"))
+
+    item = TodoItem.query.get_or_404(item_id)
+    if item.todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
+    item.update_title(new_title)
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True})
+
+    flash("Item name updated successfully!", "success")
+    return redirect(url_for("todos.index"))
+
+
+@bp.route("/item/<int:item_id>/delete", methods=["POST"])
+@login_required
+def delete_item(item_id: int) -> Union[Dict[str, Any], redirect]:
+    """
+    Delete a todo item.
+
+    Args:
+        item_id: ID of the item to delete
+
+    Returns:
+        Union[Dict[str, Any], redirect]: JSON response for API calls,
+        redirect for form submissions
+    """
+    item = TodoItem.query.get_or_404(item_id)
+    if item.todo_list.user_id != current_user.id:
+        flash("Unauthorized action.", "error")
+        return redirect(url_for("todos.index"))
+
+    db.session.delete(item)
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True})
+
+    flash("Item deleted successfully!", "success")
     return redirect(url_for("todos.index"))

@@ -7,7 +7,7 @@
     <!-- List Creation -->
     <div class="create-list">
         <h2><i class="fas fa-scroll"></i> Create New Quest List</h2>
-        <form method="POST" action="{{ url_for('todos.create_list') }}" class="create-list-form">
+        <form method="POST" action="{{ url_for('todos.create_list') }}" class="create-list-form" data-ajax="true">
             <input type="text" name="title" placeholder="Enter list title..." required>
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Create
@@ -26,7 +26,7 @@
                         <i class="fas fa-edit"></i>
                     </button>
                     <form method="POST" action="{{ url_for('todos.delete_list', list_id=list.id) }}"
-                        class="delete-list-form" onsubmit="return confirm('Are you sure?')">
+                        class="delete-list-form" data-ajax="true" onsubmit="return confirm('Are you sure?')">
                         <button type="submit" class="btn btn-danger btn-small">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -35,7 +35,7 @@
             </div>
             <!-- Edit List Name Form (hidden by default) -->
             <form method="POST" action="{{ url_for('todos.edit_list', list_id=list.id) }}" class="edit-list-form"
-                id="edit-form-{{ list.id }}" style="display: none;">
+                id="edit-form-{{ list.id }}" style="display: none;" data-ajax="true">
                 <input type="text" name="title" value="{{ list.title }}" required>
                 <button type="submit" class="btn btn-secondary">
                     <i class="fas fa-save"></i>
@@ -44,7 +44,7 @@
             </form>
 
             <!-- Create Item Form -->
-            <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-item-form">
+            <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-item-form" data-ajax="true">
                 <input type="hidden" name="list_id" value="{{ list.id }}">
                 <input type="text" name="title" placeholder="Add new quest..." required>
                 <button type="submit" class="btn btn-secondary">
@@ -67,7 +67,7 @@
 
                         <!-- Completion Toggle -->
                         <form method="POST" action="{{ url_for('todos.toggle_item', item_id=item.id) }}"
-                            class="toggle-form">
+                            class="toggle-form" data-ajax="true">
                             <button type="submit" class="btn-toggle {{ 'completed' if item.completed else '' }}">
                                 <i class="fas {{ 'fa-check-circle' if item.completed else 'fa-circle' }}"></i>
                             </button>
@@ -85,18 +85,35 @@
                                 <i class="fas fa-tasks"></i>
                             </button>
                             {% endif %}
-
-                            {% if level == 0 %}
                             <button class="btn btn-small" onclick="showMoveForm('{{ item.id }}')">
                                 <i class="fas fa-exchange-alt"></i>
                             </button>
-                            {% endif %}
+                            <button class="btn btn-small" onclick="showEditItemForm('{{ item.id }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form method="POST" action="{{ url_for('todos.delete_item', item_id=item.id) }}"
+                                class="delete-item-form" data-ajax="true" onsubmit="return confirm('Are you sure?')">
+                                <button type="submit" class="btn btn-danger btn-small">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
+                        <!-- Edit Item Name Form (hidden by default) -->
+                        <form method="POST" action="{{ url_for('todos.edit_item', item_id=item.id) }}"
+                            class="edit-item-form" id="edit-item-form-{{ item.id }}" style="display: none;"
+                            data-ajax="true">
+                            <input type="text" name="title" value="{{ item.title }}" required>
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-save"></i>
+                            </button>
+                            <button type="button" class="btn btn-secondary"
+                                onclick="closeEditItemForm('{{ item.id }}')">Cancel</button>
+                        </form>
                     </div>
 
                     <!-- Sub-item Creation Form (hidden by default) -->
                     <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-subitem-form"
-                        id="subitem-form-{{ item.id }}" style="display: none;">
+                        id="subitem-form-{{ item.id }}" style="display: none;" data-ajax="true">
                         <input type="hidden" name="list_id" value="{{ list.id }}">
                         <input type="hidden" name="parent_id" value="{{ item.id }}">
                         <input type="text" name="title" placeholder="Add sub-quest..." required>
@@ -129,7 +146,7 @@
 <div id="moveModal" class="modal">
     <div class="modal-content">
         <h3>Move Quest to Another List</h3>
-        <form method="POST" id="moveItemForm">
+        <form method="POST" id="moveItemForm" data-ajax="true">
             <select name="list_id" required>
                 {% for list in lists %}
                 <option value="{{ list.id }}">{{ list.title }}</option>
@@ -140,6 +157,26 @@
         </form>
     </div>
 </div>
+
+<!-- Add a form to move items between lists -->
+<div id="move-item-modal" class="modal">
+    <div class="modal-content">
+        <h4>Move Item</h4>
+        <form id="move-item-form">
+            <input type="hidden" name="item_id" id="move-item-id">
+            <div class="input-field">
+                <select name="list_id" id="move-item-list-id">
+                    {% for list in lists %}
+                    <option value="{{ list.id }}">{{ list.title }}</option>
+                    {% endfor %}
+                </select>
+                <label for="move-item-list-id">Select List</label>
+            </div>
+            <button type="submit" class="btn">Move</button>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -176,12 +213,52 @@
         document.getElementById(`edit-form-${listId}`).style.display = 'none';
     }
 
+    function showEditItemForm(itemId) {
+        document.getElementById(`edit-item-form-${itemId}`).style.display = 'flex';
+    }
+
+    function closeEditItemForm(itemId) {
+        document.getElementById(`edit-item-form-${itemId}`).style.display = 'none';
+    }
+
     // Close modal when clicking outside
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         const modal = document.getElementById('moveModal');
         if (event.target == modal) {
             modal.style.display = 'none';
         }
+    }
+
+    // Handle move item form submission
+    document.getElementById('move-item-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const itemId = document.getElementById('move-item-id').value;
+        const listId = document.getElementById('move-item-list-id').value;
+
+        fetch(`/item/${itemId}/move`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `list_id=${listId}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to move item.');
+                }
+            });
+    });
+
+    // Function to open move item modal
+    function openMoveItemModal(itemId) {
+        document.getElementById('move-item-id').value = itemId;
+        const modal = document.getElementById('move-item-modal');
+        const instance = M.Modal.getInstance(modal);
+        instance.open();
     }
 </script>
 {% endblock %}

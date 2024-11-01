@@ -25,7 +25,7 @@ class TodoList(db.Model):
         "TodoItem",
         backref="todo_list",
         lazy="dynamic",
-        primaryjoin="and_(TodoList.id==TodoItem.list_id, " "TodoItem.parent_id==None)",
+        primaryjoin="and_(TodoList.id==TodoItem.list_id, TodoItem.parent_id==None)",
     )
 
     def update_title(self, new_title: str) -> None:
@@ -103,13 +103,25 @@ class TodoItem(db.Model):
         """
         return self.get_level() < 2  # Limit to 3 levels (0, 1, 2)
 
-    def move_to_list(self, new_list_id: int) -> None:
+    def move_to_list(self, new_list_id: int, as_top_level: bool = False) -> None:
         """
         Move this item and all its children to a different list.
 
         Args:
             new_list_id: ID of the destination todo list
+            as_top_level: Whether to move the item as a top-level item
         """
-        if self.parent_id is not None:
-            raise ValueError("Can only move top-level items between lists")
         self.list_id = new_list_id
+        if as_top_level:
+            self.parent_id = None
+        for child in self.children:
+            child.move_to_list(new_list_id)
+
+    def update_title(self, new_title: str) -> None:
+        """
+        Update the title of the todo item.
+
+        Args:
+            new_title: New title for the todo item
+        """
+        self.title = new_title

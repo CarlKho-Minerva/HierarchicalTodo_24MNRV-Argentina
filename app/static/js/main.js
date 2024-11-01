@@ -63,6 +63,31 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // AJAX form submissions
+  const ajaxForms = document.querySelectorAll('form[data-ajax="true"]');
+  ajaxForms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.reload();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  });
+
   const editForms = document.querySelectorAll(".edit-list-form");
   editForms.forEach((form) => {
     form.addEventListener("submit", function (event) {
@@ -93,6 +118,58 @@ document.addEventListener("DOMContentLoaded", function () {
       event.preventDefault();
 
       if (!confirm("Are you sure you want to delete this list?")) {
+        return;
+      }
+
+      fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.reload();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  });
+
+  const editItemForms = document.querySelectorAll(".edit-item-form");
+  editItemForms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.reload();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  });
+
+  const deleteItemForms = document.querySelectorAll(".delete-item-form");
+  deleteItemForms.forEach((form) => {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      if (!confirm("Are you sure you want to delete this item?")) {
         return;
       }
 
@@ -191,4 +268,12 @@ function showEditForm(listId) {
 
 function closeEditForm(listId) {
   document.getElementById(`edit-form-${listId}`).style.display = 'none';
+}
+
+function showEditItemForm(itemId) {
+  document.getElementById(`edit-item-form-${itemId}`).style.display = 'flex';
+}
+
+function closeEditItemForm(itemId) {
+  document.getElementById(`edit-item-form-${itemId}`).style.display = 'none';
 }
