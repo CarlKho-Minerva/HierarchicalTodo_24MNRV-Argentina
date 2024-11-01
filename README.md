@@ -1,90 +1,132 @@
 # Medieval Todo List Application
 
-## Description
-
-A hierarchical todo list application with a medieval theme. Users can create multiple todo lists with nested items up to three levels deep. Each user has their own private lists and items.
-
-## Features
-
-- User authentication system
-- Hierarchical todos (up to 3 levels deep)
-- Collapsible todo items
-- Task completion tracking
-- Drag-and-drop task movement between lists
-- Medieval-themed UI (coming soon)
-
-## Installation
-
-### Prerequisites
-
-- Python 3.8+
-- pip
-- Virtual environment
-
-### Setup
-
-1. Clone the repository:
-
-```sh
-git clone <repository-url>
-cd medieval-todos
-```
-
-2. Create and activate virtual environment:
-
-```sh
-# On macOS/Linux:
-python3 -m venv venv
-source venv/bin/activate
-
-# On Windows:
-python3 -m venv venv
-venv\Scripts\activate.bat
-```
-
-3. Install dependencies:
-
-```sh
-pip install -r requirements.txt
-```
-
-4. Run the application:
-
-```sh
-python run.py
-```
-
-5. Access the application at: `http://localhost:5000`
+A hierarchical todo list application with a medieval theme, supporting nested tasks up to 3 levels deep.
 
 ## Project Structure
 
-```
-medieval-todos/
+```txt
+HierarchicalTodo_24MNRV-Argentina/
 ├── app/
-│   ├── models/          # Database models
-│   ├── routes/          # Route handlers
-│   ├── static/          # Static files (CSS, JS)
-│   ├── templates/       # HTML templates
-│   └── __init__.py      # App initialization
-├── tests/               # Test files
-├── config.py           # Configuration files
-├── requirements.txt    # Project dependencies
-├── README.md          # This file
-└── run.py             # Application entry point
+│   ├── __init__.py           # Application factory and extensions
+│   ├── models/               # Database models
+│   │   ├── __init__.py
+│   │   ├── todo.py          # TodoList and TodoItem models
+│   │   └── user.py          # User model
+│   ├── routes/              # Route handlers
+│   │   ├── __init__.py
+│   │   ├── auth.py         # Authentication routes
+│   │   └── todos.py        # Todo management routes
+│   ├── static/             # Static assets
+│   │   ├── css/
+│   │   └── js/
+│   └── templates/          # HTML templates
+├── tests/                  # Test suite
+│   ├── __init__.py
+│   ├── test_auth.py       # Authentication tests
+│   └── test_todos.py      # Todo functionality tests
+├── config.py              # Configuration settings
+├── conftest.py           # Pytest configuration
+└── requirements.txt      # Project dependencies
 ```
+
+## Key Features
+
+- User authentication (register/login)
+- Hierarchical todo lists with up to 3 levels of nesting
+- AJAX-powered interactions for smooth user experience
+- Medieval-themed UI
 
 ## Testing
 
-Run tests using:
+### Test Location
 
-```sh
-python -m pytest
+- Main test files are in the `tests/` directory:
+  - `test_auth.py`: Tests for user registration and authentication
+  - `test_todos.py`: Tests for todo list and item management
+
+### Running Tests
+
+1. Install test dependencies:
+
+```bash
+pip install pytest pytest-flask
 ```
 
-## Author
+2. Run the test suite:
 
-Carl Kho
+```bash
+pytest
+```
 
-## License
+### Test Coverage
 
-MIT License
+The test suite covers:
+
+- User registration and authentication
+- Todo list creation and management
+- Todo item creation and hierarchy
+- Item completion and expansion states
+- List and item deletion
+
+## Core Functionality Locations
+
+1. __Database Models__ (`app/models/`):
+   - `user.py`: User authentication and management
+   - `todo.py`: Todo list and item implementation with hierarchy
+
+2. __Routes__ (`app/routes/`):
+   - `auth.py`: Authentication endpoints
+   - `todos.py`: Todo management endpoints
+
+3. __Templates__ (`app/templates/`):
+   - `base.html`: Base template with navigation
+   - `login.html` & `register.html`: Authentication forms
+   - `todos.html`: Main todo management interface
+
+4. __Static Files__ (`app/static/`):
+   - JavaScript for AJAX interactions
+   - CSS for medieval-themed styling
+
+## Running the Application
+
+1. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Initialize the database:
+
+```bash
+flask db upgrade
+```
+
+3. Run the development server:
+
+```bash
+flask run
+```
+
+## Configuration
+
+- Development configuration: `config.py`
+- Test configuration: `config.TestConfig` in `config.py`
+
+## Continuous Integration
+
+- GitHub Actions workflow in `.github/workflows/test.yml`
+- Automatically runs tests on push and pull requests
+
+## Design Decisions
+
+1. __Hierarchical Structure__:
+   - Implemented using self-referential relationship in TodoItem model
+   - Maximum nesting depth of 3 levels for clarity
+
+2. __AJAX Interactions__:
+   - Used for smooth updates without page reloads
+   - Fallback to standard form submissions when JavaScript is disabled
+
+3. __Medieval Theme__:
+   - Consistent styling across all pages
+   - Themed terminology (e.g., "quests" instead of "todos")
