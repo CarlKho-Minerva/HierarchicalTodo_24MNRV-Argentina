@@ -24,12 +24,10 @@ class TodoList(db.Model):
     created_at: datetime = Column(db.DateTime, default=datetime.utcnow)
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id", name="fk_todolist_user"), nullable=False)
     items = db.relationship(
-        "TodoItem",
-        backref="list",
-        lazy="dynamic",
-        cascade="all, delete-orphan",  # Add cascade delete
-        primaryjoin="and_(TodoList.id==TodoItem.list_id, TodoItem.parent_id==None)",
-        cascade="all, delete-orphan"
+        'TodoItem',
+        backref='todo_list',
+        cascade="all, delete-orphan",  # Keep only one cascade parameter
+        lazy=True
     )
     show_completed: bool = db.Column(db.Boolean, default=True)
 
