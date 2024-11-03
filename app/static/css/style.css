@@ -716,25 +716,41 @@ input[type="email"] {
 /* Replace with this simpler version */
 .action-btn {
     position: relative;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
-.action-btn .tooltip {
-    position: relative;
+.tooltip {
+    display: none;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-color);
+    padding: 6px 12px;
+    border-radius: 4px;
     font-size: 0.8rem;
-    opacity: 0;
-    max-width: 0;
-    overflow: hidden;
     white-space: nowrap;
-    transition: all 0.3s ease;
+    right: calc(100% + 8px);  /* Position to the left */
+    top: 50%;  /* Center vertically */
+    transform: translateY(-50%);  /* Center vertically */
+    z-index: 1000;
+    border: 1px solid rgba(192, 160, 128, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Add a small arrow pointing to the button */
+.tooltip::after {
+    content: '';
+    position: absolute;
+    right: -4px;  /* Arrow points to the right */
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 4px 0 4px 4px;  /* Arrow shape */
+    border-style: solid;
+    border-color: transparent transparent transparent rgba(0, 0, 0, 0.6);
 }
 
 .action-btn:hover .tooltip {
-    opacity: 1;
-    max-width: 200px;
-    margin-left: 0.5rem;
+    display: block;
 }
 
 /* Adjust folder icon styling */
