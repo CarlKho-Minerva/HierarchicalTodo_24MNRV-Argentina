@@ -2,6 +2,15 @@
 
 A hierarchical todo list application with an immersive medieval theme that allows users to manage quests (todos) with up to 3 levels of nested sub-quests.
 
+## Features
+
+- 🏰 Medieval-themed UI with smooth animations and visual effects
+- 👤 User authentication system
+- 📜 Multiple todo lists (quest journals)
+- ⚔️ Hierarchical tasks up to 3 levels deep
+- 🔄 AJAX-powered interactions for smooth UX
+- 📱 Responsive design with elegant scrolling behavior
+
 ## Demo Video
 <div>
     <a href="https://www.loom.com/share/da2a485c02b14377ae5e01d53ba56695">
@@ -11,15 +20,6 @@ A hierarchical todo list application with an immersive medieval theme that allow
       <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/da2a485c02b14377ae5e01d53ba56695-da8fa7d1abdd6bbb-full-play.gif">
     </a>
   </div>
-
-## Features
-
-- 🏰 Medieval-themed UI with smooth animations and visual effects
-- 👤 User authentication system
-- 📜 Multiple todo lists (quest journals)
-- ⚔️ Hierarchical tasks up to 3 levels deep
-- 🔄 AJAX-powered interactions for smooth UX
-- 📱 Responsive design with elegant scrolling behavior
 
 ## Project Structure
 The project uses Flask for the backend, SQLAlchemy for the database, and vanilla JavaScript with AJAX for frontend interactions. The medieval theme is implemented through CSS variables, gradients, and animations.
