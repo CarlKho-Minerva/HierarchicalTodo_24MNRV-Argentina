@@ -6,10 +6,10 @@
 <div class="todos-container">
     <!-- List Creation -->
     <div class="create-list">
-        <h2><i class="fas fa-scroll"></i> Create New Quest List</h2>
+        <h2><i class="fas fa-scroll"></i> Create New List</h2>
         <form method="POST" action="{{ url_for('todos.create_list') }}" class="create-list-form" data-ajax="true">
-            <input type="text" name="title" placeholder="Enter list title..." required>
-            <button type="submit" class="btn btn-primary">
+            <input type="text" name="title" placeholder="Enter list name..." required>
+            <button type="submit" class="btn btn-primary" style="padding-left: 1rem; padding-right: 1rem;" title="Create new list">
                 <i class="fas fa-plus"></i> Create
             </button>
         </form>
@@ -20,23 +20,40 @@
         {% for list in lists %}
         <div class="todo-list" data-list-id="{{ list.id }}">
             <div class="list-header">
-                <h3><i class="fas fa-bookmark"></i> {{ list.title }}</h3>
-                <div class="list-actions">
-                    <form method="POST" action="{{ url_for('todos.toggle_completed_view', list_id=list.id) }}"
-                        class="toggle-completed-form" data-ajax="true">
-                        <button type="submit" class="btn btn-small">
-                            <i class="fas {{ 'fa-eye-slash' if list.show_completed else 'fa-eye' }}"></i>
+                <h3><i class="fas fa-book-open"></i> {{ list.title }}</h3>
+                <div class="list-actions-container">
+                    <!-- Create Item Form - moved here -->
+                    <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-item-form"
+                        data-ajax="true">
+                        <input type="hidden" name="list_id" value="{{ list.id }}">
+                        <input type="text" name="title" placeholder="Add new quest..." required>
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i>
                         </button>
                     </form>
-                    <button class="btn btn-small" onclick="showEditForm('{{ list.id }}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <form method="POST" action="{{ url_for('todos.delete_list', list_id=list.id) }}"
-                        class="delete-list-form" data-ajax="true" onsubmit="return confirm('Are you sure?')">
-                        <button type="submit" class="btn btn-danger btn-small">
-                            <i class="fas fa-trash"></i>
+
+                    <div class="list-actions">
+                        <form method="POST" action="{{ url_for('todos.toggle_completed_view', list_id=list.id) }}"
+                            class="toggle-completed-form" data-ajax="true">
+                            <button type="submit" class="btn btn-small action-btn">
+                                <i class="fas {{ 'fa-eye-slash' if list.show_completed else 'fa-eye' }}"></i>
+                                <span class="tooltip">{{ 'Hide completed tasks' if list.show_completed else 'Show
+                                    completed tasks' }}</span>
+                            </button>
+                        </form>
+                        <button class="btn btn-small action-btn" onclick="showEditForm('{{ list.id }}')">
+                            <i class="fas fa-edit"></i>
+                            <span class="tooltip">Edit list name</span>
                         </button>
-                    </form>
+                        <form method="POST" action="{{ url_for('todos.delete_list', list_id=list.id) }}"
+                            class="delete-list-form" data-ajax="true"
+                            onsubmit="return confirm('Are you sure you want to delete this list and all its tasks?')">
+                            <button type="submit" class="btn btn-danger btn-small action-btn">
+                                <i class="fas fa-trash"></i>
+                                <span class="tooltip">Delete list</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
             <!-- Edit List Name Form (hidden by default) -->
@@ -47,15 +64,6 @@
                     <i class="fas fa-save"></i>
                 </button>
                 <button type="button" class="btn btn-secondary" onclick="closeEditForm('{{ list.id }}')">Cancel</button>
-            </form>
-
-            <!-- Create Item Form -->
-            <form method="POST" action="{{ url_for('todos.create_item') }}" class="create-item-form" data-ajax="true">
-                <input type="hidden" name="list_id" value="{{ list.id }}">
-                <input type="text" name="title" placeholder="Add new quest..." required>
-                <button type="submit" class="btn btn-secondary">
-                    <i class="fas fa-plus"></i>
-                </button>
             </form>
 
             <!-- Todo Items -->
@@ -75,7 +83,7 @@
                         <form method="POST" action="{{ url_for('todos.toggle_item', item_id=item.id) }}"
                             class="toggle-form" data-ajax="true">
                             <button type="submit" class="btn-toggle {{ 'completed' if item.completed else '' }}">
-                                <i class="fas {{ 'fa-check-circle' if item.completed else 'fa-circle' }}"></i>
+                                <i class="fas {{ 'fa-check-circle' if item.completed else 'fa-circle-dot' }}"></i>
                             </button>
                         </form>
 
@@ -87,20 +95,25 @@
                         <!-- Item Actions -->
                         <div class="item-actions">
                             {% if item.can_have_children() %}
-                            <button class="btn btn-small" onclick="showSubitemForm('{{ item.id }}')">
+                            <button class="btn btn-small action-btn" onclick="showSubitemForm('{{ item.id }}')">
                                 <i class="fas fa-tasks"></i>
+                                <span class="tooltip">Add subtask</span>
                             </button>
                             {% endif %}
-                            <button class="btn btn-small" onclick="showMoveForm('{{ item.id }}')">
+                            <button class="btn btn-small action-btn" onclick="showMoveForm('{{ item.id }}')">
                                 <i class="fas fa-exchange-alt"></i>
+                                <span class="tooltip">Move to another list</span>
                             </button>
-                            <button class="btn btn-small" onclick="showEditItemForm('{{ item.id }}')">
+                            <button class="btn btn-small action-btn" onclick="showEditItemForm('{{ item.id }}')">
                                 <i class="fas fa-edit"></i>
+                                <span class="tooltip">Edit task</span>
                             </button>
                             <form method="POST" action="{{ url_for('todos.delete_item', item_id=item.id) }}"
-                                class="delete-item-form" data-ajax="true" onsubmit="return confirm('Are you sure?')">
-                                <button type="submit" class="btn btn-danger btn-small">
+                                class="delete-item-form" data-ajax="true"
+                                onsubmit="return confirm('Are you sure you want to delete this task?')">
+                                <button type="submit" class="btn btn-danger btn-small action-btn">
                                     <i class="fas fa-trash"></i>
+                                    <span class="tooltip">Delete task</span>
                                 </button>
                             </form>
                         </div>
@@ -151,13 +164,15 @@
 <!-- Move Item Modal -->
 <div id="moveModal" class="modal">
     <div class="modal-content">
-        <h3>Move Quest to Another List</h3>
+        <h3>Move Task to Another List</h3>
         <form method="POST" id="moveItemForm" data-ajax="true">
-            <select name="list_id" required>
-                {% for list in lists %}
-                <option value="{{ list.id }}">{{ list.title }}</option>
-                {% endfor %}
-            </select>
+            <div class="select-wrapper">
+                <select name="list_id" required>
+                    {% for list in lists %}
+                    <option value="{{ list.id }}">{{ list.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Move</button>
             <button type="button" class="btn btn-secondary" onclick="closeMoveModal()">Cancel</button>
         </form>
@@ -171,11 +186,13 @@
         <form id="move-item-form">
             <input type="hidden" name="item_id" id="move-item-id">
             <div class="input-field">
-                <select name="list_id" id="move-item-list-id">
-                    {% for list in lists %}
-                    <option value="{{ list.id }}">{{ list.title }}</option>
-                    {% endfor %}
-                </select>
+                <div class="select-wrapper">
+                    <select name="list_id" id="move-item-list-id">
+                        {% for list in lists %}
+                        <option value="{{ list.id }}">{{ list.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <label for="move-item-list-id">Select List</label>
             </div>
             <button type="submit" class="btn">Move</button>

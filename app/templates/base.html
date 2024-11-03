@@ -4,55 +4,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Medieval Todos{% endblock %}</title>
+    <title>{% block title %}Medieval Task List{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="navbar-brand">
-            <a href="{{ url_for('todos.index') }}" class="navbar-logo">
-                <i class="fas fa-scroll"></i> Medieval Todos
-            </a>
-        </div>
-        <div class="navbar-menu">
-            {% if current_user.is_authenticated %}
-            <span class="navbar-user">
-                <i class="fas fa-user"></i> {{ current_user.username }}
-            </span>
-            <a href="{{ url_for('auth.logout') }}" class="navbar-item">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-            {% else %}
-            <a href="{{ url_for('auth.login') }}" class="navbar-item">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </a>
-            <a href="{{ url_for('auth.register') }}" class="navbar-item">
-                <i class="fas fa-user-plus"></i> Register
-            </a>
-            {% endif %}
-        </div>
-    </nav>
+    <div class="background">
+        <div class="flame"></div>
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <a href="{{ url_for('todos.index') }}" class="navbar-logo">
+                    <span>Medieval Task List</span>
+                </a>
+            </div>
+            <div class="navbar-menu">
+                {% if current_user.is_authenticated %}
+                <span class="navbar-user">
+                    <i class="fas fa-crown"></i>{{ current_user.username }}
+                </span>
+                <a href="{{ url_for('auth.logout') }}" class="navbar-item" title="Sign out">
+                    <i class="fas fa-sign-out-alt"></i>Sign Out
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="navbar-item" title="Sign in to your account">
+                    <i class="fas fa-sign-in-alt"></i>Sign In
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="navbar-item" title="Create a new account">
+                    <i class="fas fa-user-plus"></i>Register
+                </a>
+                {% endif %}
+            </div>
+        </nav>
 
-    <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-            <button class="alert-close">&times;</button>
+        <div class="container">
+            <div class="toast-container" id="toastContainer">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="toast toast-{{ category }}" role="alert">
+                    <i class="toast-icon fas
+                                    {%- if category == 'success' -%} fa-check-circle
+                                    {%- elif category == 'error' -%} fa-exclamation-circle
+                                    {%- elif category == 'warning' -%} fa-exclamation-triangle
+                                    {%- else -%} fa-info-circle
+                                    {%- endif -%}">
+                    </i>
+                    <div class="toast-message">{{ message }}</div>
+                    <button type="button" class="toast-close" onclick="closeToast(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="toast-progress">
+                        <div class="toast-progress-bar"></div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+            {% block content %}{% endblock %}
         </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
 
-        {% block content %}{% endblock %}
-    </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Show all toasts with a slight delay between each
+                const toasts = document.querySelectorAll('.toast');
+                toasts.forEach((toast, index) => {
+                    setTimeout(() => {
+                        toast.classList.add('show');
+                        // Auto-remove toast after animation
+                        setTimeout(() => {
+                            toast.classList.remove('show');
+                            setTimeout(() => {
+                                toast.remove();
+                            }, 300);
+                        }, 3000);
+                    }, index * 150);
+                });
+            });
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    {% block scripts %}{% endblock %}
+            function closeToast(button) {
+                const toast = button.closest('.toast');
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }
+        </script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        {% block scripts %}{% endblock %}
+        <footer class="footer">
+            Made with <i class="fas fa-heart" style="color: var(--secondary-color); margin: 0 0.3rem;"></i> by
+            <a href="https://medium.com/design-bootcamp/i-somehow-ended-up-in-new-york-times-squares-tallest-billboard-e05ca35c3792"
+                target="_blank" rel="noopener noreferrer">Carl Kho</a>
+        </footer>
 </body>
 
 </html>

@@ -1,0 +1,91 @@
+{% macro render_todo_list(list, level=0) %}
+<div class="todo-list" style="margin-left: {{ level * 20 }}px;">
+    <h{{ level + 2 }}>{{ list.title }}</h{{ level + 2 }}>
+    <ul class="todo-items">
+        {% for item in list.items %}
+        <li>
+            <input type="checkbox" {% if item.completed %}checked{% endif %}
+                onchange="updateTodoStatus({{ item.id }}, this.checked)">
+            <span {% if item.completed %}class="completed" {% endif %}>{{ item.title }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% if list.children %}
+    {% for child in list.children %}
+    {{ render_todo_list(child, level + 1) }}
+    {% endfor %}
+    {% endif %}
+</div>
+{% endmacro %}
+
+{% macro render_todo_item(item) %}
+<div class="todo-item" data-item-id="{{ item.id }}">
+    <div class="item-content">
+        <div class="item-main">
+            {% if item.children.count() > 0 %}
+            <button onclick="toggleExpand({{ item.id }})" class="btn btn-small expand-btn">
+                <i class="fas {{ 'fa-chevron-down' if item.is_expanded else 'fa-chevron-right' }}"></i>
+            </button>
+            {% endif %}
+
+            <input type="checkbox" id="todo-{{ item.id }}" {% if item.completed %}checked{% endif %}
+                onchange="updateTodoStatus({{ item.id }}, this.checked)">
+            <label for="todo-{{ item.id }}" {% if item.completed %}class="completed"{% endif %}>
+                {{ item.title }}
+            </label>
+        </div>
+
+        <div class="item-actions">
+            {% if item.can_have_children() %}
+            <button class="btn btn-small" onclick="showSubitemForm({{ item.id }})">
+                <i class="fas fa-plus"></i>
+            </button>
+            {% endif %}
+            <button class="btn btn-small" onclick="showMoveForm({{ item.id }})">
+                <i class="fas fa-arrows-alt"></i>
+            </button>
+            <button class="btn btn-small" onclick="showEditItemForm({{ item.id }})">
+                <i class="fas fa-edit"></i>
+            </button>
+            <form method="POST" action="{{ url_for('todos.delete_item', item_id=item.id) }}" class="delete-item-form"
+                data-ajax="true" style="display: inline;">
+                <button type="submit" class="btn btn-danger btn-small">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sub-item form -->
+    <form method="POST" action="{{ url_for('todos.create_item') }}" class="subitem-form" id="subitem-form-{{ item.id }}"
+        style="display: none;" data-ajax="true">
+        <input type="hidden" name="list_id" value="{{ item.list_id }}">
+        <input type="hidden" name="parent_id" value="{{ item.id }}">
+        <input type="text" name="title" placeholder="Add sub-quest..." required>
+        <button type="submit" class="btn btn-secondary">
+            <i class="fas fa-plus"></i>
+        </button>
+    </form>
+
+    <!-- Edit form -->
+    <form method="POST" action="{{ url_for('todos.edit_item', item_id=item.id) }}" class="edit-item-form"
+        id="edit-item-form-{{ item.id }}" style="display: none;" data-ajax="true">
+        <input type="text" name="title" value="{{ item.title }}" required>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-check"></i>
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="closeEditItemForm({{ item.id }})">
+            <i class="fas fa-times"></i>
+        </button>
+    </form>
+
+    {% if item.is_expanded and item.children.count() > 0 %}
+    <div class="sub-items">
+        {% for child in item.children %}
+            {{ render_todo_item(child) }}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}
