@@ -2,6 +2,16 @@
 
 A hierarchical todo list application with an immersive medieval theme that allows users to manage quests (todos) with up to 3 levels of nested sub-quests.
 
+## Demo Video
+<div>
+    <a href="https://www.loom.com/share/da2a485c02b14377ae5e01d53ba56695">
+      <p>Medieval Task List App Demo 🏰 - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/da2a485c02b14377ae5e01d53ba56695">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/da2a485c02b14377ae5e01d53ba56695-da8fa7d1abdd6bbb-full-play.gif">
+    </a>
+  </div>
+
 ## Features
 
 - 🏰 Medieval-themed UI with smooth animations and visual effects
