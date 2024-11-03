@@ -6,16 +6,7 @@
 <div class="todos-container">
     <!-- List Creation -->
     <div class="create-list">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2><i class="fas fa-scroll"></i> Create New List</h2>
-            <form method="POST" action="{{ url_for('todos.clear_all') }}"
-                  onsubmit="return confirm('Are you sure you want to delete ALL your lists and tasks?')"
-                  style="margin-left: auto;">
-                <button type="submit" class="btn btn-danger" title="Clear all data">
-                    <i class="fas fa-trash-alt"></i> Clear All
-                </button>
-            </form>
-        </div>
+        <h2><i class="fas fa-scroll"></i> Create New List</h2>
         <form method="POST" action="{{ url_for('todos.create_list') }}" class="create-list-form" data-ajax="true">
             <input type="text" name="title" placeholder="Enter list name..." required>
             <button type="submit" class="btn btn-primary" style="padding-left: 1rem; padding-right: 1rem;" title="Create new list">

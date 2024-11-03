@@ -427,22 +427,6 @@ def move_item_position():
         return jsonify({"success": False}), 500
 
 
-@bp.route("/clear-all", methods=["POST"])
-@login_required
-def clear_all():
-    """Clear all todos for the current user."""
-    try:
-        # Delete all lists (items will cascade delete)
-        TodoList.query.filter_by(user_id=current_user.id).delete()
-        db.session.commit()
-        flash("All data cleared successfully!", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash("Error clearing data.", "error")
-
-    return redirect(url_for("todos.index"))
-
-
 @property
 def visible_items(self):
     """Return visible top-level items based on show_completed setting"""
