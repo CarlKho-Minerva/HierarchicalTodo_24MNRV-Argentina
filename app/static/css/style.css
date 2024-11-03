@@ -78,7 +78,7 @@ html {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 40px;  /* Increased from 20px */
+    padding: 40px 60px; /* Increased horizontal padding from 40px to 60px */
     position: relative;
     z-index: 1;
 }
@@ -204,8 +204,8 @@ html {
 
 /* Todo list styles */
 .todos-container {
-    padding: 30px;  /* Increased from 20px */
-    margin-top: 30px;  /* Increased from 20px */
+    padding: 30px 45px; /* Increased horizontal padding from 30px to 45px */
+    margin-top: 30px;
     border-radius: 12px;
     background: transparent;
     backdrop-filter: none;

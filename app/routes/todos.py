@@ -28,6 +28,8 @@ def index() -> str:
         str: Rendered todo list template
     """
     lists = TodoList.query.filter_by(user_id=current_user.id).all()
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return render_template("_lists_container.html", lists=lists)
     return render_template("todos.html", lists=lists)
 
 
