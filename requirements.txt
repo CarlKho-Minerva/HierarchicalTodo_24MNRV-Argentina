@@ -1,8 +1,11 @@
 # Core Flask Dependencies
 Flask>=2.0.1
 Flask-SQLAlchemy>=2.5.1  # For database ORM
+Flask-SQLAlchemy         # Adding these in manually since they did not work when I tried on friend's macbook
 Flask-Login>=0.5.0       # For user authentication
+Flask_login             # Adding these in manually since they did not work when I tried on friend's macbook
 Flask-Migrate>=3.1.0     # For database migrations
+Flask_migrate           # Adding these in manually since they did not work when I tried on friend's macbook
 Flask-WTF>=0.15.1       # For forms and CSRF protection
 Werkzeug>=2.0.3         # Required by Flask
 
