@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
@@ -18,7 +19,7 @@
             <div class="navbar-brand">
                 <a href="{{ url_for('todos.index') }}" class="navbar-logo">
                     <i class="fas fa-scroll"></i>
-                    <span><b>Medieval Task List</b></span>
+                    <span>Medieval Task List</span>
                 </a>
             </div>
             <div class="navbar-menu">
@@ -43,33 +44,33 @@
         <div class="container">
             <div class="toast-container" id="toastContainer">
                 {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="toast toast-{{ category }}" role="alert">
-                                <i class="toast-icon fas
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="toast toast-{{ category }}" role="alert">
+                    <i class="toast-icon fas
                                     {%- if category == 'success' -%} fa-check-circle
                                     {%- elif category == 'error' -%} fa-exclamation-circle
                                     {%- elif category == 'warning' -%} fa-exclamation-triangle
                                     {%- else -%} fa-info-circle
                                     {%- endif -%}">
-                                </i>
-                                <div class="toast-message">{{ message }}</div>
-                                <button type="button" class="toast-close" onclick="closeToast(this)">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                                <div class="toast-progress">
-                                    <div class="toast-progress-bar"></div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                    </i>
+                    <div class="toast-message">{{ message }}</div>
+                    <button type="button" class="toast-close" onclick="closeToast(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="toast-progress">
+                        <div class="toast-progress-bar"></div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
                 {% endwith %}
             </div>
             {% block content %}{% endblock %}
         </div>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 // Show all toasts with a slight delay between each
                 const toasts = document.querySelectorAll('.toast');
                 toasts.forEach((toast, index) => {
@@ -94,8 +95,13 @@
                 }, 300);
             }
         </script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    {% block scripts %}{% endblock %}
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        {% block scripts %}{% endblock %}
+        <footer class="footer">
+            Made with <i class="fas fa-heart" style="color: var(--secondary-color); margin: 0 0.3rem;"></i> by
+            <a href="https://medium.com/design-bootcamp/i-somehow-ended-up-in-new-york-times-squares-tallest-billboard-e05ca35c3792"
+                target="_blank" rel="noopener noreferrer">Carl Kho</a>
+        </footer>
 </body>
 
 </html>

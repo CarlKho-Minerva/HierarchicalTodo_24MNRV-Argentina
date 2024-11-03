@@ -93,7 +93,11 @@ html {
     align-items: center;
     position: relative;
     z-index: 2;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: none;  /* Remove shadow */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(74, 44, 42, 0.85);
+    border-bottom: 1px solid rgba(192, 160, 128, 0.2);
 }
 
 .navbar::before {
@@ -123,11 +127,21 @@ html {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    letter-spacing: 1px;
+    font-weight: 700;
 }
 
 .navbar-logo i {
     font-size: 1.5rem;
     color: var(--secondary-color);
+}
+
+.navbar-logo span {
+    background: linear-gradient(to right, var(--accent-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
 }
 
 .navbar-menu {
@@ -179,7 +193,7 @@ html {
 .navbar-item:hover {
     background-color: var(--secondary-color);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(192, 160, 128, 0.3);
+    box-shadow: none;  /* Remove shadow */
 }
 
 .navbar-item i,
@@ -200,8 +214,8 @@ html {
 
 .todo-list {
     background: rgba(74, 44, 42, 0.2);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(12px);  /* Increased from 5px */
+    -webkit-backdrop-filter: blur(12px);
     border: none;
     padding: 25px;  /* Increased from 15px */
     margin-bottom: 25px;  /* Increased from 15px */
@@ -227,8 +241,8 @@ html {
     padding: 1rem;  /* Increased from 0.75rem */
     border: none; /* Remove border */
     background: rgba(74, 44, 42, 0.2);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(8px);  /* Increased from 3px */
+    -webkit-backdrop-filter: blur(8px);
     border-radius: 6px; /* Add smooth corner radius */
     position: relative;
     overflow: hidden;
@@ -237,7 +251,7 @@ html {
 
 .item-content:hover {
     transform: translateX(5px);
-    box-shadow: -5px 0 10px rgba(192, 160, 128, 0.2);
+    box-shadow: none;  /* Remove shadow */
 }
 
 /* Level indentation with elegant line */
@@ -375,7 +389,8 @@ html {
 .children-container {
     position: relative;
     padding-left: 1.5rem;  /* Increased from 1rem */
-    margin-top: 0.8rem;  /* Added margin */
+    margin-top: 1.2rem; /* Increased space before subquests */
+    margin-bottom: 0.8rem; /* Add some bottom space */
 }
 
 .children-container::before {
@@ -419,6 +434,18 @@ input[type="email"] {
     border: 1px solid var(--secondary-color);
     color: var(--text-color);
     font-family: 'Open Sans', sans-serif;
+    height: 2.5rem;  /* Match button height */
+    padding: 0 1rem;  /* Horizontal padding only */
+    margin: 0;  /* Remove margin */
+    background: rgba(74, 44, 42, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: none;
+    border-radius: 4px;
+    color: var(--text-color);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.9em;  /* Match button font size */
+    line-height: 2.5rem;  /* Match height for vertical centering */
 }
 
 .btn {
@@ -435,7 +462,7 @@ input[type="email"] {
 .btn:hover {
     background-color: var(--accent-color);
     transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(192, 160, 128, 0.3);
+    box-shadow: none;  /* Remove shadow */
 }
 
 /* Action buttons layout */
@@ -469,7 +496,7 @@ input[type="email"] {
 .btn:hover {
     background-color: var(--accent-color);
     transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(192, 160, 128, 0.3);
+    box-shadow: none;  /* Remove shadow */
 }
 
 .btn-small {
@@ -493,8 +520,8 @@ input[type="email"] {
     padding: 1rem;  /* Increased from 0.75rem */
     border: none; /* Remove border */
     background: rgba(74, 44, 42, 0.2);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(8px);  /* Increased from 3px */
+    -webkit-backdrop-filter: blur(8px);
     border-radius: 6px; /* Add smooth corner radius */
 }
 
@@ -502,21 +529,59 @@ input[type="email"] {
 .create-item-form,
 .create-list-form {
     display: flex;
-    gap: 1.5rem;  /* Increased from 1rem */
+    gap: 0.8rem;  /* Match the action button gap */
     align-items: center;
-    margin: 1.5rem 0;  /* Increased from 1rem */
+    margin: 1rem 0;
 }
 
 .create-item-form input,
-.create-list-form input {
-    flex: 1;
-    min-width: 0;
+.create-list-form input,
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    height: 2.5rem;  /* Match button height */
+    padding: 0 1rem;  /* Horizontal padding only */
+    margin: 0;  /* Remove margin */
     background: rgba(74, 44, 42, 0.3);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: none;
     border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: var(--text-color);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.9em;  /* Match button font size */
+    line-height: 2.5rem;  /* Match height for vertical centering */
+}
+
+.create-list-form input,
+.create-item-form input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(192, 160, 128, 0.3);
+    height: 2.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    padding: 0 1rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.create-list-form input:hover,
+.create-item-form input:hover {
+    border-color: var(--accent-color);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.create-list-form input:focus,
+.create-item-form input:focus {
+    border-color: var(--secondary-color);
+    background: rgba(0, 0, 0, 0.4);
+    outline: none;
+}
+
+.create-list-form input::placeholder,
+.create-item-form input::placeholder {
+    color: rgba(224, 208, 176, 0.6);
+    font-style: italic;
 }
 
 /* Better visibility for completed items */
@@ -538,10 +603,11 @@ input[type="email"] {
 .list-actions-container {
     display: flex;
     align-items: center;
-    gap: 1.5rem;  /* Increased from 1rem */
+    gap: 0.8rem;  /* Match other gaps */
 }
 
 .create-item-form {
+    flex: 1;  /* Allow form to take available space */
     margin: 0;
 }
 
@@ -721,9 +787,9 @@ input[type="email"] {
 .tooltip {
     display: none;
     position: absolute;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.4);  /* More transparent */
+    backdrop-filter: blur(12px);  /* Increased from 8px */
+    -webkit-backdrop-filter: blur(12px);
     color: var(--text-color);
     padding: 6px 12px;
     border-radius: 4px;
@@ -734,7 +800,7 @@ input[type="email"] {
     transform: translateY(-50%);  /* Center vertically */
     z-index: 1000;
     border: 1px solid rgba(192, 160, 128, 0.2);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: none;  /* Remove shadow */
 }
 
 /* Add a small arrow pointing to the button */
@@ -759,4 +825,46 @@ input[type="email"] {
     opacity: 0.8;
     font-size: 1.1em;
     margin-right: 0.5rem;
+}
+
+/* Add footer styles */
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    backdrop-filter: blur(64px);
+    -webkit-backdrop-filter: blur(64px);
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.footer a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.footer a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+/* Update create list spacing */
+.create-list {
+    margin-top: 10px; /* Reduced from default */
+}
+
+/* Update subitem form spacing */
+.create-subitem-form {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: 2.5rem; /* Match the level-1 indentation */
+    padding-left: 1rem;
 }
