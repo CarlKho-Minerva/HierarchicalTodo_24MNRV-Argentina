@@ -707,35 +707,40 @@ input[type="email"] {
     display: none;
 }
 
-/* Tooltip improvements */
+/* Remove old tooltip styles */
 [title] {
     position: relative;
 }
 
-[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.5rem;
-    background: rgba(0, 0, 0, 0.8);
-    color: var(--text-color);
-    font-size: 0.8rem;
-    border-radius: 4px;
-    white-space: nowrap;
-    z-index: 10;
-    pointer-events: none;
+/* Remove all previous tooltip styles */
+/* Replace with this simpler version */
+.action-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-/* Optional: Add a small arrow to the tooltip */
-[title]:hover::before {
-    content: '';
-    position: absolute;
-    bottom: 90%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 5px solid transparent;
-    border-top-color: rgba(0, 0, 0, 0.8);
-    pointer-events: none;
+.action-btn .tooltip {
+    position: relative;
+    font-size: 0.8rem;
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover .tooltip {
+    opacity: 1;
+    max-width: 200px;
+    margin-left: 0.5rem;
+}
+
+/* Adjust folder icon styling */
+.list-header h3 i {
+    color: var(--accent-color);
+    opacity: 0.8;
+    font-size: 1.1em;
+    margin-right: 0.5rem;
 }
