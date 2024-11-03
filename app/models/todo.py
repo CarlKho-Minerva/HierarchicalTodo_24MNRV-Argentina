@@ -1,9 +1,9 @@
 """Todo models for the Medieval Todo List application."""
 
+from sqlalchemy import Column
 from datetime import datetime
 from typing import Optional
 from app import db
-from sqlalchemy import Column, Boolean
 
 
 class TodoList(db.Model):

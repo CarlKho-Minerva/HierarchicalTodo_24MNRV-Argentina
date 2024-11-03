@@ -11,6 +11,16 @@ A hierarchical todo list application with an immersive medieval theme that allow
 - 🔄 AJAX-powered interactions for smooth UX
 - 📱 Responsive design with elegant scrolling behavior
 
+## Demo Video
+<div>
+    <a href="https://www.loom.com/share/da2a485c02b14377ae5e01d53ba56695">
+      <p>Medieval Task List App Demo 🏰 - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/da2a485c02b14377ae5e01d53ba56695">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/da2a485c02b14377ae5e01d53ba56695-da8fa7d1abdd6bbb-full-play.gif">
+    </a>
+  </div>
+
 ## Project Structure
 The project uses Flask for the backend, SQLAlchemy for the database, and vanilla JavaScript with AJAX for frontend interactions. The medieval theme is implemented through CSS variables, gradients, and animations.
 ```

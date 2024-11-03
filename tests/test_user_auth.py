@@ -70,7 +70,7 @@ def test_user_login_logout(client):
 
     # Test logout
     response = client.get("/logout", follow_redirects=True)
-    assert b"Login" in response.data  # Should be redirected to login page
+    assert b"Enter the Realm" in response.data  # Should be redirected to login page
 
 
 def test_task_isolation(client):

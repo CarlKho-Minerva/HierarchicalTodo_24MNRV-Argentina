@@ -12,6 +12,6 @@ if __name__ == "__main__":
     # Run the application
     app.run(
         host=os.environ.get("FLASK_HOST", "127.0.0.1"),
-        port=int(os.environ.get("FLASK_PORT", 5000)),
+        port=int(os.environ.get("FLASK_PORT", 5001)),
         debug=config[config_name].DEBUG,
     )
