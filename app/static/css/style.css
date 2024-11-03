@@ -190,14 +190,12 @@ html {
 
 /* Todo list styles */
 .todos-container {
-    background-color: rgba(0, 0, 0, 0.7);
+    /* Remove background-color */
     border: 2px solid var(--secondary-color);
     padding: 30px;  /* Increased from 20px */
     margin-top: 30px;  /* Increased from 20px */
-    clip-path: polygon(0 10px, 10px 0,
-            calc(100% - 10px) 0, 100% 10px,
-            100% calc(100% - 10px), calc(100% - 10px) 100%,
-            10px 100%, 0 calc(100% - 10px));
+    /* Replace clip-path with border-radius */
+    border-radius: 12px;
 }
 
 .todo-list {
@@ -206,11 +204,7 @@ html {
     padding: 25px;  /* Increased from 15px */
     margin-bottom: 25px;  /* Increased from 15px */
     transition: all 0.3s ease;
-}
-
-.todo-list:hover {
-    transform: scale(1.01);
-    box-shadow: 0 0 15px rgba(192, 160, 128, 0.3);
+    border-radius: 8px; /* Add smooth corner radius */
 }
 
 /* Enhanced Todo Items Styling */
@@ -234,7 +228,7 @@ html {
         rgba(74, 44, 42, 0.7),
         rgba(74, 44, 42, 0.3)
     );
-    border-radius: 4px;
+    border-radius: 6px; /* Add smooth corner radius */
     position: relative;
     overflow: hidden;
 }
@@ -409,10 +403,7 @@ html {
     background-color: rgba(0, 0, 0, 0.7);
     border: 2px solid var(--secondary-color);
     padding: 30px;  /* Increased from 20px */
-    clip-path: polygon(0 10px, 10px 0,
-            calc(100% - 10px) 0, 100% 10px,
-            100% calc(100% - 10px), calc(100% - 10px) 100%,
-            10px 100%, 0 calc(100% - 10px));
+    border-radius: 12px; /* Replace clip-path with border-radius */
 }
 
 input[type="text"],
@@ -499,7 +490,7 @@ input[type="email"] {
     padding: 1rem;  /* Increased from 0.75rem */
     border: 1px solid var(--secondary-color);
     background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
+    border-radius: 6px; /* Add smooth corner radius */
 }
 
 /* Form layout improvements */
@@ -563,10 +554,7 @@ input[type="email"] {
     width: 90%;  /* Increased from 80% */
     max-width: 600px;  /* Increased from 500px */
     position: relative;
-    clip-path: polygon(0 10px, 10px 0,
-            calc(100% - 10px) 0, 100% 10px,
-            100% calc(100% - 10px), calc(100% - 10px) 100%,
-            10px 100%, 0 calc(100% - 10px));
+    border-radius: 12px; /* Replace clip-path with border-radius */
 }
 
 /* Remove the duplicate move-item-modal style since it's handled by the .modal class */

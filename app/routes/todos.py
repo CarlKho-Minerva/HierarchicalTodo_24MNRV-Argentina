@@ -196,13 +196,11 @@ def toggle_item(item_id):
     db.session.commit()
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({
-            "success": True,
-            "completed": item.completed
-        })
+        return jsonify({"success": True, "completed": item.completed})
 
     flash("Item status updated.", "success")
     return redirect(url_for("todos.index"))
+
 
 # Add a new route to fetch list items separately
 @bp.route("/list/<int:list_id>/items")
