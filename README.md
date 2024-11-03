@@ -1,132 +1,121 @@
 # Medieval Todo List Application
 
-A hierarchical todo list application with a medieval theme, supporting nested tasks up to 3 levels deep.
+A hierarchical todo list application with an immersive medieval theme that allows users to manage quests (todos) with up to 3 levels of nested sub-quests.
+
+## Features
+
+- 🏰 Medieval-themed UI with smooth animations and visual effects
+- 👤 User authentication system
+- 📜 Multiple todo lists (quest journals)
+- ⚔️ Hierarchical tasks up to 3 levels deep
+- 🔄 AJAX-powered interactions for smooth UX
+- 📱 Responsive design with elegant scrolling behavior
 
 ## Project Structure
-
-```txt
-HierarchicalTodo_24MNRV-Argentina/
+The project uses Flask for the backend, SQLAlchemy for the database, and vanilla JavaScript with AJAX for frontend interactions. The medieval theme is implemented through CSS variables, gradients, and animations.
+```
+medieval-todos/
 ├── app/
-│   ├── __init__.py           # Application factory and extensions
-│   ├── models/               # Database models
-│   │   ├── __init__.py
-│   │   ├── todo.py          # TodoList and TodoItem models
-│   │   └── user.py          # User model
-│   ├── routes/              # Route handlers
-│   │   ├── __init__.py
+│   ├── models/
+│   │   ├── todo.py         # TodoList and TodoItem models
+│   │   └── user.py         # User authentication model
+│   ├── routes/
 │   │   ├── auth.py         # Authentication routes
 │   │   └── todos.py        # Todo management routes
-│   ├── static/             # Static assets
+│   ├── static/
 │   │   ├── css/
+│   │   │   └── style.css   # Medieval-themed styling
 │   │   └── js/
-│   └── templates/          # HTML templates
-├── tests/                  # Test suite
-│   ├── __init__.py
-│   ├── test_auth.py       # Authentication tests
-│   └── test_todos.py      # Todo functionality tests
-├── config.py              # Configuration settings
-├── conftest.py           # Pytest configuration
-└── requirements.txt      # Project dependencies
+│   │       └── main.js     # AJAX handlers and UI interactions
+│   └── templates/
+│       ├── _list_card.html # List component template
+│       ├── _macros.html    # Reusable template components
+│       └── todos.html      # Main todo interface
+└── tests/
+    ├── test_auth.py        # Authentication tests
+    └── test_todos.py       # Todo functionality tests
 ```
 
-## Key Features
+## Key Components
 
-- User authentication (register/login)
-- Hierarchical todo lists with up to 3 levels of nesting
-- AJAX-powered interactions for smooth user experience
-- Medieval-themed UI
+### Frontend
 
-## Testing
+`(app/static/js/main.js)`
 
-### Test Location
+- Smooth scroll position management with
+storeScrollPosition() / restoreScrollPosition()
 
-- Main test files are in the `tests/` directory:
-  - `test_auth.py`: Tests for user registration and authentication
-  - `test_todos.py`: Tests for todo list and item management
+- AJAX form submissions via handleAjaxSubmission()
 
-### Running Tests
+- Dynamic list updates using updateListItems() and updateListsContainer()
 
-1. Install test dependencies:
+### Styling
 
-```bash
-pip install pytest pytest-flask
-```
+(`app/static/css/style.css`)
 
-2. Run the test suite:
+- Medieval color scheme with variables
+- Smooth animations and transitions
+- Hierarchical indentation for nested items
+- Responsive layout with mobile support
 
-```bash
-pytest
-```
+### Backend Models
 
-### Test Coverage
+`(app/models/todo.py)`
 
-The test suite covers:
+- TodoList for managing collections of items
+- TodoItem with self-referential relationship for hierarchy
 
-- User registration and authentication
-- Todo list creation and management
-- Todo item creation and hierarchy
-- Item completion and expansion states
-- List and item deletion
-
-## Core Functionality Locations
-
-1. __Database Models__ (`app/models/`):
-   - `user.py`: User authentication and management
-   - `todo.py`: Todo list and item implementation with hierarchy
-
-2. __Routes__ (`app/routes/`):
-   - `auth.py`: Authentication endpoints
-   - `todos.py`: Todo management endpoints
-
-3. __Templates__ (`app/templates/`):
-   - `base.html`: Base template with navigation
-   - `login.html` & `register.html`: Authentication forms
-   - `todos.html`: Main todo management interface
-
-4. __Static Files__ (`app/static/`):
-   - JavaScript for AJAX interactions
-   - CSS for medieval-themed styling
-
-## Running the Application
-
-1. Install dependencies:
+## Installation
 
 ```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate.bat # Windows
+
+# Install dependencies
 pip install -r requirements.txt
-```
 
-2. Initialize the database:
-
-```bash
+# Initialize database
 flask db upgrade
-```
 
-3. Run the development server:
-
-```bash
+# Run development server
 flask run
 ```
 
-## Configuration
+## Usage
 
-- Development configuration: `config.py`
-- Test configuration: `config.TestConfig` in `config.py`
+1. Register/Login to access your todo lists
+2. Create new lists using the "Create New List" form
+3. Add items to lists with the "Add new quest..." form
+4. Create sub-items up to 3 levels deep
+5. Toggle item completion with checkboxes
+6. Expand/collapse sub-items using arrow buttons
+7. Move items between lists using the move button
 
-## Continuous Integration
+## Testing
 
-- GitHub Actions workflow in `.github/workflows/test.yml`
-- Automatically runs tests on push and pull requests
+Run the test suite:
 
-## Design Decisions
+```bash
+pytest -v
+```
 
-1. __Hierarchical Structure__:
-   - Implemented using self-referential relationship in TodoItem model
-   - Maximum nesting depth of 3 levels for clarity
+Generate coverage report:
 
-2. __AJAX Interactions__:
-   - Used for smooth updates without page reloads
-   - Fallback to standard form submissions when JavaScript is disabled
+```bash
+pytest --cov=app --cov-report=term-missing
+```
 
-3. __Medieval Theme__:
-   - Consistent styling across all pages
-   - Themed terminology (e.g., "quests" instead of "todos")
+## License
+
+MIT License - See LICENSE file for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+Made with ❤️ by Carl Kho.
