@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Medieval Todos{% endblock %}</title>
+    <title>{% block title %}Task Hierarchy{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -18,7 +18,7 @@
             <div class="navbar-brand">
                 <a href="{{ url_for('todos.index') }}" class="navbar-logo">
                     <i class="fas fa-scroll"></i>
-                    <span><b>Medieval Todos</b></span>
+                    <span><b>Task Hierarchy</b></span>
                 </a>
             </div>
             <div class="navbar-menu">
@@ -26,15 +26,15 @@
                 <span class="navbar-user">
                     <i class="fas fa-crown"></i>{{ current_user.username }}
                 </span>
-                <a href="{{ url_for('auth.logout') }}" class="navbar-item">
-                    <i class="fas fa-sign-out-alt"></i>Leave Realm
+                <a href="{{ url_for('auth.logout') }}" class="navbar-item" title="Sign out">
+                    <i class="fas fa-sign-out-alt"></i>Sign Out
                 </a>
                 {% else %}
-                <a href="{{ url_for('auth.login') }}" class="navbar-item">
-                    <i class="fas fa-sign-in-alt"></i>Enter Realm
+                <a href="{{ url_for('auth.login') }}" class="navbar-item" title="Sign in to your account">
+                    <i class="fas fa-sign-in-alt"></i>Sign In
                 </a>
-                <a href="{{ url_for('auth.register') }}" class="navbar-item">
-                    <i class="fas fa-user-plus"></i>Join Kingdom
+                <a href="{{ url_for('auth.register') }}" class="navbar-item" title="Create a new account">
+                    <i class="fas fa-user-plus"></i>Register
                 </a>
                 {% endif %}
             </div>
