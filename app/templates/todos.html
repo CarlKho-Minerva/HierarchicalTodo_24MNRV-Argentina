@@ -163,11 +163,13 @@
     <div class="modal-content">
         <h3>Move Task to Another List</h3>
         <form method="POST" id="moveItemForm" data-ajax="true">
-            <select name="list_id" required>
-                {% for list in lists %}
-                <option value="{{ list.id }}">{{ list.title }}</option>
-                {% endfor %}
-            </select>
+            <div class="select-wrapper">
+                <select name="list_id" required>
+                    {% for list in lists %}
+                    <option value="{{ list.id }}">{{ list.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Move</button>
             <button type="button" class="btn btn-secondary" onclick="closeMoveModal()">Cancel</button>
         </form>
@@ -181,11 +183,13 @@
         <form id="move-item-form">
             <input type="hidden" name="item_id" id="move-item-id">
             <div class="input-field">
-                <select name="list_id" id="move-item-list-id">
-                    {% for list in lists %}
-                    <option value="{{ list.id }}">{{ list.title }}</option>
-                    {% endfor %}
-                </select>
+                <div class="select-wrapper">
+                    <select name="list_id" id="move-item-list-id">
+                        {% for list in lists %}
+                        <option value="{{ list.id }}">{{ list.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <label for="move-item-list-id">Select List</label>
             </div>
             <button type="submit" class="btn">Move</button>

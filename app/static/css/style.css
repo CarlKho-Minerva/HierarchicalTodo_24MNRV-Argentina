@@ -868,3 +868,70 @@ input[type="email"] {
     margin-left: 2.5rem; /* Match the level-1 indentation */
     padding-left: 1rem;
 }
+
+/* Further reduce create list spacing */
+.create-list {
+    margin-top: 0;  /* Remove top margin */
+}
+
+.create-list h2 {
+    margin-top: 0;  /* Remove top margin from heading */
+    margin-bottom: 1rem;  /* Add some space before the form */
+}
+
+/* Improve dropdown styling */
+select {
+    height: 2.5rem;
+    padding: 0 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(192, 160, 128, 0.3);
+    border-radius: 4px;
+    color: var(--text-color);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    min-width: 200px;
+    position: relative;
+}
+
+/* Add custom dropdown arrow */
+.select-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.select-wrapper::after {
+    content: '\f107';  /* FontAwesome chevron-down */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent-color);
+    pointer-events: none;
+}
+
+select:hover {
+    border-color: var(--accent-color);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* Style dropdown options */
+select option {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+}
