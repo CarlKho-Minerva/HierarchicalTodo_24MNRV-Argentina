@@ -86,7 +86,7 @@ venv\Scripts\activate.bat # Windows
 # Install dependencies
 pip install -r requirements.txt
 
-# Initialize database
+# Initialize database (alternatively: run if you manually deleted the db)
 flask db upgrade
 
 # Run development server
